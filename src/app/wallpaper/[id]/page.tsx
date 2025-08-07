@@ -19,11 +19,11 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
   
-  const { id } = params;
   const query = searchParams.q || 'sci-fi';
 
   useEffect(() => {
     const fetchWallpapers = async () => {
+      const { id } = params;
       if (!id) return;
       setIsLoading(true);
       // Fetch a larger list to make swiping more meaningful
@@ -35,7 +35,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
     };
 
     fetchWallpapers();
-  }, [query, id]);
+  }, [query, params]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
