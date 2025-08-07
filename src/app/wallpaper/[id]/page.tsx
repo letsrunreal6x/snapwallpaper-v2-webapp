@@ -18,19 +18,18 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuery, setCurrentQuery] = useState('sci-fi');
 
-  const { id } = params;
-  const { q: query } = searchParams;
-
   useEffect(() => {
     const fetchWallpapers = async () => {
-      const activeQuery = query || 'sci-fi';
-      setCurrentQuery(activeQuery);
-
+      // Access params and searchParams inside the effect
+      const id = params.id;
+      const query = searchParams.q || 'sci-fi';
+      
       if (!id) return;
       
+      setCurrentQuery(query);
       setIsLoading(true);
       try {
-        const fetchedWallpapers = await getWallpapers({ query: activeQuery, page: 1, per_page: 50 });
+        const fetchedWallpapers = await getWallpapers({ query: query, page: 1, per_page: 50 });
         setWallpapers(fetchedWallpapers);
         
         const index = fetchedWallpapers.findIndex(w => w.id === id);
@@ -43,7 +42,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
     };
 
     fetchWallpapers();
-  }, [id, query]);
+  }, [params, searchParams]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
