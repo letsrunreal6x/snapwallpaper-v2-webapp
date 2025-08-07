@@ -18,17 +18,9 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
-  const [id, setId] = useState('');
+  const [id, setId] = useState(params.id);
 
   const query = searchParams.q || 'sci-fi';
-
-  useEffect(() => {
-    // In recent Next.js versions, `params` can be a promise.
-    // We resolve it into state to safely use it in effects.
-    if (params) {
-      setId(params.id);
-    }
-  }, [params]);
 
   useEffect(() => {
     const fetchWallpapers = async () => {
