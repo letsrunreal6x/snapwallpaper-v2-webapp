@@ -1,7 +1,8 @@
 
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
+import { Heart, Star } from 'lucide-react';
 import { Button } from './ui/button';
+import { PremiumDialog } from './premium-dialog';
 
 export default function Header() {
   return (
@@ -13,6 +14,7 @@ export default function Header() {
           </span>
         </Link>
         <nav className="flex items-center gap-2">
+          <PremiumDialog />
           <Button variant="ghost" size="icon" asChild>
             <Link href="/favorites">
               <Heart className="h-5 w-5 text-secondary hover:text-glow-secondary transition-all" />
