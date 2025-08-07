@@ -20,11 +20,12 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [currentQuery, setCurrentQuery] = useState('sci-fi');
   const { toggleFavorite, isFavorite } = useFavorites();
   
-  const id = params.id;
-  const query = searchParams.q || 'sci-fi';
-
   useEffect(() => {
     const fetchWallpapers = async () => {
+      // Access params and searchParams inside the effect
+      const id = params.id;
+      const query = searchParams.q || 'sci-fi';
+      
       if (!id) return;
       
       setCurrentQuery(query);
@@ -43,7 +44,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
     };
 
     fetchWallpapers();
-  }, [id, query]);
+  }, [params, searchParams]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
