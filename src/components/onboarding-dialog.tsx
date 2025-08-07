@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Search, Heart, Download, Star, Info } from 'lucide-react';
+import { Search, Heart, Download, Star, Info, Shuffle } from 'lucide-react';
 
 interface OnboardingDialogProps {
     open: boolean;
@@ -37,6 +37,10 @@ export function OnboardingDialog({ open, onOpenChange, onContinue }: OnboardingD
                 <li className="flex items-start gap-3">
                     <Search className="w-5 h-5 mt-0.5 text-primary flex-shrink-0" />
                     <span>Use the <b className="text-foreground">search bar</b> and <b className="text-foreground">categories</b> to find the perfect wallpaper for you.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                    <Shuffle className="w-5 h-5 mt-0.5 text-primary flex-shrink-0" />
+                    <span>Click the <b className="text-foreground">Shuffle & Add New</b> button to mix new wallpapers into the grid for a fresh look.</span>
                 </li>
                  <li className="flex items-start gap-3">
                     <Download className="w-5 h-5 mt-0.5 text-primary flex-shrink-0" />
