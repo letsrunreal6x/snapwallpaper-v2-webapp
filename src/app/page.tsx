@@ -7,7 +7,7 @@ import Header from '@/components/header';
 import { WallpaperGrid } from '@/components/wallpaper-grid';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, Plus, MoreHorizontal } from 'lucide-react';
+import { Search, MoreHorizontal } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -19,45 +19,143 @@ export default function Home() {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const allCategories = [
-    // Core
-    'Cyberpunk', 'Sci-Fi', 'Space', 'Futuristic', 'Neon', 'Abstract', 'Glitch', 
-    // Concepts
-    'Dystopian', 'Utopian', 'Post-Apocalyptic', 'Steampunk', 'Solarpunk', 'Biopunk', 'Nanopunk',
-    // Locations
-    'Alien', 'Planet', 'Galaxy', 'Nebula', 'Stars', 'Cityscape', 'Metropolis', 'Megastructure', 'Underwater City', 'Floating Island',
-    // Tech
-    'Robot', 'Cyborg', 'Android', 'AI', 'Hologram', 'VR', 'Virtual Reality', 'AR', 'Augmented Reality', 'Drone', 'Mecha', 'Exosuit',
-    // Vehicles
-    'Spaceship', 'Starship', 'Flying Car', 'Hovercraft', 'Light Cycle',
-    // Elements
-    'Quantum', 'Dimension', 'Portal', 'Time Travel', 'Wormhole', 'Black Hole',
-    // Aesthetics
-    '80s Retro', 'Synthwave', 'Vaporwave', 'Outrun', 'Retrofuturism', 'Minimalist Tech',
-    // Characters
-    'Space Marine', 'Bounty Hunter', 'Android Butler', 'Hacker', 'Netrunner', 'Mutant',
-    // Space Objects
-    'Asteroid', 'Comet', 'Supernova', 'Moon', 'Exoplanet', 'Ringed Planet',
-    // Architecture
-    'Brutalist', 'Futuristic Architecture', 'Arcology', 'Space Station', 'Orbital Ring',
-    // Nature
-    'Alien Jungle', 'Crystal Cave', 'Terraformed Planet', 'Bioluminescent Forest',
-    // Moods
-    'Dark', 'Moody', 'Cinematic', 'Epic', 'Serene Space', 'Cosmic Horror',
-    // Misc
-    'NASA', 'Space Probe', 'Satellite', 'Concept Art', 'Digital Art', '3D Render', 'Fractal',
-    'Circuit Board', 'Data Stream', 'Code', 'Matrix', 'High Tech', 'Low Life',
-    'Alien Landscape', 'Cosmic Dust', 'Star Cluster', 'Pulsar', 'Quasar',
+    // Core & Foundational
+    'Abstract', 'AI', 'Alien', 'Android', 'AR', 'Asteroid', 'Automation', 'Big Data', 'Bio-Dome', 
+    'Bio-Engineering', 'Bioluminescent', 'Biopunk', 'Biotechnology', 'Black Hole', 'Blade Runner', 'Blueprint',
+    'Bounty Hunter', 'Brutalist', 'Celestial', 'Circuit', 'Circuit Board', 'Cityscape', 'Clone',
+    'Code', 'Comet', 'Concept Art', 'Constellation', 'Cosmic', 'Cosmic Dust', 'Cosmic Horror', 
+    'Cosmonaut', 'Cosmos', 'Cryosleep', 'Crystal', 'Cyber-Noir', 'Cyber-Security', 'Cyber-Warfare',
+    'Cybernetics', 'Cyborg', 'Dark', 'Data', 'Data Stream', 'Deep Space', 'Digital', 'Digital Art',
+    'Dimension', 'DNA', 'Drone', 'Dystopian', 'Earth', 'Energy', 'Epic', 'Exoplanet', 'Exosuit',
+    'Explorer', 'Fantasy', 'Floating Island', 'Force Field', 'Fractal', 'Futuristic', 'Futuristic Architecture',
+    'Galaxy', 'Gas Giant', 'Genetic', 'Ghost in the Shell', 'Glitch', 'Gravity', 'Hacker', 'Hard Sci-Fi',
+    'High Tech', 'Hologram', 'Hovercraft', 'Humanoid', 'Hyperdrive', 'Hyperspace', 'Ice Planet', 'Industrial',
+    'Infrared', 'Interstellar', 'Jungle', 'Jupiter', 'Laser', 'Light', 'Light Cycle', 'Low Life', 'Lunar',
+    'Machine', 'Mars', 'Massive', 'Matrix', 'Mecha', 'Megacity', 'Megastructure', 'Mercury', 'Metropolis',
 
-    // Bonus
-    'Quantum Realm', 'Cybernetics', 'Cryosleep', 'Warp Drive', 'Laser Grid', 'Force Field',
-    'Plasma', 'Antigravity', 'Singularity', 'Bio-Dome', 'Cyber-Noir', 'Tech-Wear',
-    'Sentient Plant', 'Gas Giant', 'Ice Planet', 'Desert Planet', 'Volcanic Planet'
+    // Expanded Terms & Concepts
+    'Action', 'Advanced', 'Adventure', 'Aether', 'Aftermath', 'Agent', 'Alien Colony', 'Alien Culture',
+    'Alien Forest', 'Alien Invasion', 'Alien Jungle', 'Alien Landscape', 'Alien Race', 'Alternate Reality',
+    'Andromeda', 'Anti-gravity', 'Apocalypse', 'Arcade', 'Archaeology', 'Arcology', 'Artificial', 'Assassin',
+    'Astral', 'Astronaut', 'Astrophysics', 'Atmosphere', 'Atomic', 'Augmented', 'Augmented Reality', 'Aurora',
+    'Automaton', 'Awesome', 'Barren', 'Battle', 'Battleship', 'Beam', 'Bio-luminescence', 'Bio-mechanical',
+    'Black-and-White', 'Blast', 'Blaster', 'Blockade', 'Blue', 'Bot', 'Breach', 'Bridge', 'Bright', 'Bubble',
+    'Bunker', 'Camouflage', 'Canopy', 'Canyon', 'Capital', 'Capsule', 'Captain', 'Cargo', 'Cave', 'Centauri',
+    'Chamber', 'Chaos', 'Character', 'Chemical', 'Chrome', 'Chronos', 'Cinematic', 'Citadel', 'Civilization',
+    'Cliff', 'Clockwork', 'Cloud', 'Cockpit', 'Colony', 'Colorful', 'Combat', 'Command', 'Commander', 'Communication',
+    'Complex', 'Component', 'Computer', 'Conduit', 'Connection', 'Consciousness', 'Construction', 'Containment',
+
+    // More Specific and Niche
+    'Core', 'Corporation', 'Corridor', 'Corruption', 'Cosmic Rays', 'Crate', 'Crater', 'Creature', 'Crew',
+    'Crime', 'Criminal', 'Crisis', 'Crossfire', 'Cruiser', 'Cryo', 'Cryogenics', 'Cryptic', 'Crystal Cave',
+    'Cube', 'Cult', 'Cyber', 'Cyber-crime', 'Cyber-ninja', 'Cyber-samurai', 'Cyber-soldier', 'Cyber-espionage',
+    'Cyber-fantasy', 'Cyber-mage', 'Cyber-punk city', 'Cyber-runner', 'Cyberspace', 'Cyborg Ninja',
+    'Cyborg Samurai', 'Cyborg Soldier', 'Cylinder', 'Damage', 'Danger', 'Dark Matter', 'Darkness', 'Dashboard',
+    'Database', 'Dawn', 'Debris', 'Decay', 'Deception', 'Deep', 'Defense', 'Delta', 'Derelict', 'Desert',
+    'Desert Planet', 'Desolate', 'Destroyer', 'Destruction', 'Detail', 'Device', 'Diamond', 'Digital Brain',
+    'Digital City', 'Digital Frontier', 'Digital Life', 'Digital Rain', 'Digital World', 'Dimension', 'Dimensional',
+    'Diode', 'Discovery', 'Disintegration', 'Display', 'Dock', 'Dogfight', 'Dome', 'Doomsday', 'Doomsday Machine',
+    'Droid', 'Dune', 'Dusk', 'Dwarf Star', 'Dynamic', 'Dyson Sphere', 'Echo', 'Eclipse', 'Eco-punk', 'Edge',
+    'Elder', 'Electric', 'Electricity', 'Electromagnetic', 'Electronic', 'Element', 'Elite', 'Empire', 'Encounter',
+    'Encryption', 'Enforcer', 'Engine', 'Engineer', 'Enigma', 'Entity', 'Environment', 'Eon', 'Escape', 'Ether',
+    'Ethereal', 'Event Horizon', 'Everlasting', 'Evolution', 'Excavation', 'Exo-suit', 'Exodus', 'Experiment',
+    'Experimental', 'Exploration', 'Explosion', 'Exterior', 'Extinction', 'Extra-terrestrial', 'Facility',
+    'Factory', 'Fade', 'Fallout', 'Fighter', 'Fire', 'Firefight', 'Firewall', 'Fleet', 'Flight', 'Flora',
+    'Flow', 'Fog', 'Forbidden', 'Forest', 'Fortress', 'Foundation', 'Fountain', 'Freighter', 'Frequency',
+    'Fuel', 'Fugitive', 'Fusion', 'Futurism', 'Gadget', 'Gaggle', 'Galactic', 'Game', 'Gamma', 'Gateway', 'Gear',
+    'Gem', 'Generation', 'Genesis', 'Genetics', 'Geo-engineering', 'Geode', 'Geometric', 'Ghetto', 'Giant',
+    'Glacier', 'Glass', 'Glitch Art', 'Glow', 'Glowing', 'God', 'Gothic', 'Graphene', 'Graphite', 'Grid',
+    'Grim', 'Guardian', 'Guerilla', 'Gun', 'Gunship', 'Habitat', 'Hall', 'Hallway', 'Hangar', 'Harbinger',
+    'Hardware', 'Harvest', 'Haven', 'Hazard', 'Headquarters', 'Heavy', 'Helix', 'Helmet', 'Hive', 'Holographic',
+    'Hope', 'Horizon', 'Hub', 'Hull', 'Hunter', 'Hybrid', 'Hyper-drive', 'Hyper-lane', 'Hyper-loop', 'Ice',
+    'Illuminated', 'Illusion', 'Illustration', 'Immortal', 'Impact', 'Implant', 'Inception', 'Industrial',
+    'Infinity', 'Information', 'Infrared', 'Infrastructure', 'Inhabitant', 'Injection', 'Inorganic', 'Inside',
+    'Installation', 'Intelligence', 'Interface', 'Interior', 'Interloper', 'Invasion', 'Invention', 'Inventor',
+    'Ion', 'Iron', 'Irradiated', 'Island', 'Isolation', 'Isotope', 'Jedi', 'Jet', 'Juggernaut', 'Junction',
+    'Junk', 'Junkyard', 'Kinetics', 'King', 'Knight', 'Labyrinth', 'Lagoon', 'Lake', 'Landscape', 'Last', 'Launch',
+    'Lava', 'Lava Planet', 'Law', 'Layer', 'Legacy', 'Legend', 'Legion', 'Lens', 'Leviathan', 'Life', 'Light-speed',
+    'Lightning', 'Liquid', 'Living', 'Logic', 'Lonely', 'Lost', 'Lush', 'Luxury', 'Mad Max', 'Madness',
+    'Maelstrom', 'Mage', 'Magma', 'Magnetic', 'Mainframe', 'Mankind', 'Mantle', 'Manufacture', 'Map', 'Marine',
+    'Market', 'Marvel', 'Mask', 'Matter', 'Maze', 'Mechanical', 'Mechanism', 'Medic', 'Mega-corporation',
+    'Memory', 'Mercenary', 'Metal', 'Micro', 'Microchip', 'Micro-organism', 'Midnight', 'Military', 'Mind',
+    'Mine', 'Mineral', 'Mining', 'Mirage', 'Mirror', 'Misty', 'Mobile', 'Model', 'Modern', 'Module', 'Molecule',
+    'Molten', 'Monk', 'Monochrome', 'Monolith', 'Monster', 'Monument', 'Moonbase', 'Moonlight', 'Morning',
+    'Mothership', 'Mountain', 'Mutant', 'Mutation', 'Myriad', 'Mysterious', 'Mystery', 'Myth', 'Nano',
+    'Nanobot', 'Nanopunk', 'Nanotechnology', 'NASA', 'Nature', 'Navigator', 'Nebula', 'Necromancer', 'Neo',
+    'Neon', 'Neon City', 'Neon Noir', 'Nerve', 'Net', 'Netrunner', 'Network', 'Neuro', 'Neuron', 'Neutron',
+    'New', 'Nexus', 'Night', 'Night City', 'Nightfall', 'Ninja', 'Noble', 'Nomad', 'Nova', 'Nuclear',
+    'Nucleus', 'Oasis', 'Object', 'Oblivion', 'Observer', 'Obsidian', 'Ocean', 'Ominous', 'Onyx', 'Operation',
+    'Operator', 'Oracle', 'Orb', 'Orbit', 'Orbital', 'Orbital Ring', 'Order', 'Organ', 'Organic', 'Organism',
+    'Origin', 'Outcast', 'Outer', 'Outlaw', 'Outpost', 'Outrun', 'Overgrowth', 'Overlord', 'Palace', 'Pale',
+    'Pandemic', 'Panel', 'Panorama', 'Paradox', 'Parallel', 'Parasite', 'Particle', 'Passage', 'Path', 'Patrol',
+    'Pattern', 'Peace', 'Peak', 'Pebble', 'Person', 'Phantom', 'Phase', 'Phenomenon', 'Philosopher', 'Phoenix',
+    'Photon', 'Pillar', 'Pilot', 'Pipe', 'Pipeline', 'Pirate', 'Pistol', 'Pixel', 'Plague', 'Plain', 'Planet',
+    'Planetary', 'Plasma', 'Platform', 'Plaza', 'Pod', 'Poison', 'Police', 'Pollution', 'Polygonal', 'Pool',
+    'Portal', 'Portrait', 'Post-Apocalyptic', 'Power', 'Precipice', 'Predator', 'Prehistoric', 'Priest',
+    'Primal', 'Prime', 'Primitive', 'Prince', 'Princess', 'Prism', 'Prison', 'Probe', 'Processor', 'Program',
+    'Propaganda', 'Prophet', 'Prosthetic', 'Protocol', 'Prototype', 'Psychedelic', 'Psychic', 'Pulsar', 'Punk',
+    'Pyramid', 'Quantum', 'Quantum Realm', 'Quarantine', 'Quasar', 'Queen', 'Quest', 'Quiet', 'Radar',
+    'Radiation', 'Radical', 'Radio', 'Radioactive', 'Rage', 'Raid', 'Raider', 'Rain', 'Ranger', 'Ray', 'Reactor',
+    'Reality', 'Realm', 'Rebel', 'Rebellion', 'Rebirth', 'Receiver', 'Recon', 'Red', 'Reflection', 'Refuge',
+    'Refugee', 'Regenesis', 'Reign', 'Rejuvenation', 'Relic', 'Remnant', 'Renegade', 'Repair', 'Replicant',
+    'Research', 'Reservoir', 'Resistance', 'Resonance', 'Resource', 'Retreat', 'Retro', 'Retrofuturism',
+    'Revenant', 'Revolution', 'Rider', 'Rift', 'Rifle', 'Rig', 'Ring', 'Ringed Planet', 'Riot', 'Rise', 'Risk',
+    'River', 'Road', 'Robo-cop', 'Robot', 'Robotics', 'Rock', 'Rocket', 'Rogue', 'Room', 'Rotor', 'Rover', 'Royal',
+    'Royalty', 'Ruin', 'Ruler', 'Rune', 'Runner', 'Rust', 'Sabotage', 'Sacred', 'Sadness', 'Safe', 'Samurai',
+    'Sanctuary', 'Sand', 'Sand-dune', 'Satellite', 'Savage', 'Savior', 'Scale', 'Scan', 'Scanner', 'Scavenger',
+    'Scene', 'Scheme', 'Scholar', 'School', 'Science', 'Scout', 'Scrap', 'Scrapyard', 'Scream', 'Screen',
+    'Script', 'Sculpture', 'Sea', 'Search', 'Secret', 'Sector', 'Security', 'Seed', 'Seeker', 'Sentinel',
+    'Sequence', 'Serene', 'Serenity', 'Server', 'Shadow', 'Shaft', 'Shaman', 'Shape', 'Shard', 'Shelter',
+    'Shield', 'Shimmer', 'Ship', 'Shipwreck', 'Shock', 'Shockwave', 'Shoot', 'Shooter', 'Shop', 'Shore',
+    'Shot', 'Shuttle', 'Siege', 'Signal', 'Silence', 'Silhouette', 'Silicon', 'Silver', 'Simple', 'Simulation',
+    'Simulator', 'Singularity', 'Sinister', 'Sith', 'Skeleton', 'Sketch', 'Skill', 'Skull', 'Sky', 'Sky-fi',
+    'Skyscraper', 'Slave', 'Sleeper', 'Slum', 'Smoke', 'Smuggler', 'Snow', 'Social', 'Soft', 'Software',
+    'Solar', 'Solarpunk', 'Soldier', 'Solitude', 'Solution', 'Sorcerer', 'Soul', 'Source', 'Sovereign',
+    'Space', 'Space Marine', 'Space Station', 'Spacecraft', 'Spaceship', 'Spark', 'Special', 'Specter',
+    'Spectrum', 'Speed', 'Spell', 'Sphere', 'Spider', 'Spike', 'Spine', 'Spiral', 'Spirit', 'Spire',
+    'Spore', 'Squad', 'Square', 'Stability', 'Staff', 'Stair', 'Stalker', 'Star', 'Star Cluster',
+    'Star-Wars', 'Star-bridge', 'Star-chart', 'Star-cruiser', 'Star-destroyer', 'Star-drive', 'Star-fighter',
+    'Star-gate', 'Starlight', 'Star-map', 'Star-port', 'Star-ship', 'Stasis', 'Station', 'Stealth',
+    'Steam', 'Steampunk', 'Steel', 'Stellar', 'Stone', 'Storm', 'Stormtrooper', 'Stranded', 'Strange',
+    'Stranger', 'Strategy', 'Stream', 'Street', 'Strike', 'Strip', 'Structure', 'Struggle', 'Sub-atomic',
+    'Sub-light', 'Sub-marine', 'Substance', 'Subterranean', 'Subway', 'Sun', 'Sunken', 'Sunrise',
+    'Sunset', 'Super-computer', 'Super-hero', 'Super-nova', 'Super-soldier', 'Super-structure',
+    'Surface', 'Surreal', 'Survivor', 'Swamp', 'Swarm', 'Sword', 'Symbol', 'Symmetry', 'Synapse',
+
+    'Synth', 'Synthwave', 'System', 'Tactical', 'Tank', 'Target', 'Tears', 'Tech', 'Techno', 'Techno-mage',
+    'Technocracy', 'Technology', 'Telekinesis', 'Telepathy', 'Teleport', 'Temple', 'Terminal', 'Terraform',
+    'Terraformed Planet', 'Terror', 'Tesseract', 'Test', 'Texture', 'Theory', 'Thief', 'Thorn', 'Threat',
+    'Throne', 'Thunder', 'Time', 'Time Travel', 'Titan', 'Titanium', 'Token', 'Tomb', 'Tool', 'Tornado',
+    'Torrent', 'Torture', 'Touch', 'Tower', 'Town', 'Toxic', 'Trace', 'Track', 'Trade', 'Trader', 'Tragedy',
+    'Trail', 'Train', 'Training', 'Trance', 'Tranquility', 'Transcendent', 'Transducer', 'Transfer',
+    'Transformation', 'Transistor', 'Transition', 'Transmission', 'Transmitter', 'Transport', 'Trap',
+    'Travel', 'Treason', 'Treasure', 'Tree', 'Trench', 'Trial', 'Triangle', 'Tribe', 'Tribute', 'Trigger',
+    'Trinity', 'Triumph', 'Trooper', 'Trophy', 'Trouble', 'Truck', 'Truth', 'Tsunami', 'Tube', 'Tundra',
+    'Tunnel', 'Turbine', 'Turmoil', 'Turret', 'Twilight', 'Twin', 'Twist', 'Tycoon', 'Tyranny', 'Tyrant',
+    'Ultimate', 'Ultra', 'Umbra', 'Uncertainty', 'Under-construction', 'Under-developed', 'Under-ground',
+    'Underwater', 'Underwater City', 'Undead', 'Uniform', 'Union', 'Unique', 'Unit', 'Unity', 'Universal',
+    'Universe', 'Unknown', 'Unreal', 'Unstable', 'Uprising', 'Urban', 'Utopia', 'Utopian', 'Vacuum',
+    'Vagrant', 'Valley', 'Valor', 'Vampire', 'Vanish', 'Vapor', 'Vaporwave', 'Vault', 'Vector', 'Veil',
+    'Velocity', 'Venom', 'Venture', 'Verdant', 'Verse', 'Vertical', 'Vessel', 'Veteran', 'Vex', 'Vibrant',
+    'Vice', 'Victim', 'Victory', 'View', 'Vigil', 'Vigilante', 'Viking', 'Village', 'Villain', 'Violet',
+    'Virtual', 'Virtual Reality', 'Virtue', 'Virus', 'Vision', 'Visitor', 'Vista', 'Vitality', 'Void',
+
+    'Volcanic', 'Volcanic Planet', 'Volcano', 'Volt', 'Voltage', 'Vortex', 'Voyage', 'Voyager', 'VR', 'Wall',
+    'Wanderer', 'War', 'War-drone', 'War-fare', 'War-game', 'War-hammer', 'War-head', 'War-lock', 'War-lord',
+    'War-machine', 'War-monger', 'War-ship', 'Warden', 'Warehouse', 'Warp', 'Warp Drive', 'Warrior', 'Wasteland',
+    'Watch', 'Watcher', 'Water', 'Waterfall', 'Wave', 'Weapon', 'Weary', 'Weather', 'Web', 'Weird', 'West',
+    'Western', 'Wet', 'Whale', 'Whirlpool', 'Whisper', 'White', 'White-hole', 'Wild', 'Wilderness', 'Wind',
+    'Window', 'Winter', 'Wire', 'Wisdom', 'Witch', 'Wizard', 'Wolf', 'Wonder', 'Wood', 'Work', 'Worker',
+    'Workshop', 'World', 'Wormhole', 'Worn', 'Worship', 'Wrath', 'Wreck', 'Wreckage', 'Writer', 'X-ray',
+    'Xenomorph', 'Xenophobia', 'Year', 'Yellow', 'Yin-yang', 'Youth', 'Zealot', 'Zen', 'Zenith', 'Zero',
+    'Zero-gravity', 'Zone'
   ];
   
   const initialCategories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic'];
 
   const filteredCategories = useMemo(() => 
     allCategories.filter(c => c.toLowerCase().includes(categoryFilter.toLowerCase()))
+    .sort()
     , [categoryFilter]
   );
 
