@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Download, Heart, Home, Lock, Share2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, Heart, Share2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DownloadDialog } from '@/components/download-dialog';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
@@ -23,7 +23,6 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
 
   useEffect(() => {
     const fetchWallpapers = async () => {
-      // Access params and searchParams inside the effect
       const id = params.id;
       const query = searchParams.q || 'sci-fi';
       
@@ -45,7 +44,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
     };
 
     fetchWallpapers();
-  }, [params, searchParams]);
+  }, [params.id, searchParams.q]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
