@@ -18,17 +18,9 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
-  const [id, setId] = useState<string | null>(null);
-
+  
+  const { id } = params;
   const query = searchParams.q || 'sci-fi';
-
-  useEffect(() => {
-    // We resolve it into state to safely use it in effects.
-    if (params.id) {
-      setId(params.id);
-    }
-  }, [params.id]);
-
 
   useEffect(() => {
     const fetchWallpapers = async () => {
