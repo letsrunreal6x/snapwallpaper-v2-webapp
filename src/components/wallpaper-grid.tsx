@@ -6,9 +6,12 @@ import type { Wallpaper } from '@/lib/definitions';
 import { WallpaperCard } from './wallpaper-card';
 import { Skeleton } from './ui/skeleton';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
+import { InGridAdCard } from './in-grid-ad-card';
+
+const AD_FREQUENCY = 8; // Show an ad every 8 items
 
 export function WallpaperGrid({ query }: { query: string }) {
-  const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
+  const [items, setItems] = useState<(Wallpaper | { isAd: true })[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -23,10 +26,33 @@ export function WallpaperGrid({ query }: { query: string }) {
       if (newWallpapers.length === 0) {
         setHasMore(false);
       } else {
-        setWallpapers((prev) => {
-            const existingIds = new Set(prev.map(w => w.id));
-            const uniqueNewWallpapers = newWallpapers.filter(w => !existingIds.has(w.id));
-            return [...prev, ...uniqueNewWallpapers];
+        setItems((prevItems) => {
+            const newItems: (Wallpaper | { isAd: true })[] = [...prevItems];
+            const wallpaperOnlyCount = newItems.filter(item => !('isAd' in item)).length;
+            
+            newWallpapers.forEach((wallpaper, index) => {
+                const currentTotalWallpapers = wallpaperOnlyCount + index + 1;
+                // Add wallpaper
+                newItems.push(wallpaper);
+                // Check if we should add an ad
+                if (currentTotalWallpapers % AD_FREQUENCY === 0) {
+                    newItems.push({ isAd: true });
+                }
+            });
+
+            // Filter out duplicate wallpapers just in case
+            const uniqueNewItems: (Wallpaper | { isAd: true })[] = [];
+            const seenIds = new Set();
+            newItems.forEach(item => {
+                if ('isAd' in item) {
+                    uniqueNewItems.push(item); // Keep ad placeholders
+                } else if (!seenIds.has(item.id)) {
+                    uniqueNewItems.push(item);
+                    seenIds.add(item.id);
+                }
+            });
+
+            return uniqueNewItems;
         });
         setPage((prev) => prev + 1);
       }
@@ -41,7 +67,7 @@ export function WallpaperGrid({ query }: { query: string }) {
     // If query changes, reset everything
     if (currentQueryRef.current !== query) {
         currentQueryRef.current = query;
-        setWallpapers([]);
+        setItems([]);
         setPage(1);
         setHasMore(true);
     }
@@ -49,11 +75,11 @@ export function WallpaperGrid({ query }: { query: string }) {
 
    // Effect to load initial data or data when query has changed
    useEffect(() => {
-    // Only load if wallpapers are empty and we have a query to work with
-    if (wallpapers.length === 0 && hasMore && query) {
+    // Only load if items are empty and we have a query to work with
+    if (items.length === 0 && hasMore && query) {
        loadMoreWallpapers();
     }
-  }, [wallpapers.length, hasMore, query, loadMoreWallpapers]);
+  }, [items.length, hasMore, query, loadMoreWallpapers]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,8 +106,10 @@ export function WallpaperGrid({ query }: { query: string }) {
   return (
     <div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {wallpapers.map((wallpaper, index) => (
-          <WallpaperCard key={`${wallpaper.id}-${index}`} wallpaper={wallpaper} query={query} />
+        {items.map((item, index) => (
+           ('isAd' in item) 
+             ? <InGridAdCard key={`ad-${index}`} />
+             : <WallpaperCard key={`${item.id}-${index}`} wallpaper={item} query={query} />
         ))}
       </div>
       <div ref={loaderRef} className="col-span-full h-20">
