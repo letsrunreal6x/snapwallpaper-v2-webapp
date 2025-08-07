@@ -8,7 +8,7 @@ import { Download, Heart, Home, Lock, Share2, ArrowLeft, ChevronLeft, ChevronRig
 import { Button } from '@/components/ui/button';
 import { DownloadDialog } from '@/components/download-dialog';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
-import { Wallpaper } from '@/lib/definitions';
+import type { Wallpaper } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function WallpaperPage({ params, searchParams }: { params: { id: string }, searchParams: { q: string } }) {
@@ -16,33 +16,39 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentQuery, setCurrentQuery] = useState('sci-fi');
   
-  const query = searchParams.q || 'sci-fi';
-  const { id } = params;
+  useEffect(() => {
+    const fetchWallpapers = async () => {
+      const id = params.id;
+      const query = searchParams.q || 'sci-fi';
+      setCurrentQuery(query);
+
+      if (!id) return;
+      
+      setIsLoading(true);
+      try {
+        const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
+        setWallpapers(fetchedWallpapers);
+        
+        const index = fetchedWallpapers.findIndex(w => w.id === id);
+        setCurrentIndex(index);
+      } catch (error) {
+        console.error("Failed to load wallpapers:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWallpapers();
+  }, [params.id, searchParams.q]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
       const wallpaper = wallpapers[index];
-      router.push(`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(query)}`);
+      router.push(`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(currentQuery)}`);
     }
-  }, [wallpapers, router, query]);
-
-  useEffect(() => {
-    const fetchWallpapers = async () => {
-      if (!id) return;
-      
-      setIsLoading(true);
-      const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
-      setWallpapers(fetchedWallpapers);
-      
-      const index = fetchedWallpapers.findIndex(w => w.id === id);
-      setCurrentIndex(index);
-      setIsLoading(false);
-    };
-
-    fetchWallpapers();
-  }, [id, query]);
-
+  }, [wallpapers, router, currentQuery]);
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'left' && currentIndex < wallpapers.length - 1) {
