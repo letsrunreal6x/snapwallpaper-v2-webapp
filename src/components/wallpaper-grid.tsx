@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -6,19 +7,19 @@ import { WallpaperCard } from './wallpaper-card';
 import { Skeleton } from './ui/skeleton';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 
-export function WallpaperGrid() {
+export function WallpaperGrid({ query }: { query: string }) {
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
-  const [currentQuery, setCurrentQuery] = useState('sci-fi');
+  const currentQueryRef = useRef(query);
 
   const loadMoreWallpapers = useCallback(async () => {
     if (isLoading || !hasMore) return;
     setIsLoading(true);
     try {
-      const newWallpapers = await getWallpapers({ query: currentQuery, page, per_page: 12 });
+      const newWallpapers = await getWallpapers({ query, page, per_page: 12 });
       if (newWallpapers.length === 0) {
         setHasMore(false);
       } else {
@@ -31,25 +32,25 @@ export function WallpaperGrid() {
       }
     } catch (error) {
       console.error("Failed to load wallpapers:", error);
-      // Optionally, handle the error in the UI
     } finally {
       setIsLoading(false);
     }
-  }, [page, isLoading, hasMore, currentQuery]);
+  }, [page, isLoading, hasMore, query]);
 
   useEffect(() => {
-    // Reset and load wallpapers when query changes
-    setWallpapers([]);
-    setPage(1);
-    setHasMore(true);
-  }, [currentQuery]);
+    if (currentQueryRef.current !== query) {
+        currentQueryRef.current = query;
+        setWallpapers([]);
+        setPage(1);
+        setHasMore(true);
+    }
+  }, [query]);
 
    useEffect(() => {
-    if (page === 1 && hasMore) {
+    if (page === 1 && hasMore && wallpapers.length === 0) {
        loadMoreWallpapers();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, hasMore]); // Only re-run when page or hasMore changes.
+  }, [page, hasMore, wallpapers.length, loadMoreWallpapers]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -76,8 +77,8 @@ export function WallpaperGrid() {
   return (
     <div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {wallpapers.map((wallpaper) => (
-          <WallpaperCard key={wallpaper.id} wallpaper={wallpaper} />
+        {wallpapers.map((wallpaper, index) => (
+          <WallpaperCard key={`${wallpaper.id}-${index}`} wallpaper={wallpaper} />
         ))}
       </div>
       <div ref={loaderRef} className="col-span-full h-20">

@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState } from 'react';
 import AdBanner from '@/components/ad-banner';
 import Header from '@/components/header';
 import { WallpaperGrid } from '@/components/wallpaper-grid';
@@ -6,7 +10,23 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 export default function Home() {
+  const [query, setQuery] = useState('sci-fi');
+  const [inputValue, setInputValue] = useState('');
+
   const categories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic'];
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && inputValue) {
+      setQuery(inputValue);
+    }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setQuery(category);
+    setInputValue(category);
+  };
+
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -18,6 +38,9 @@ export default function Home() {
               <Input
                 placeholder="Search wallpapers..."
                 className="w-full pl-10 h-12 text-lg bg-card/50 border-2 border-primary/50 focus:border-primary transition-colors"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleSearch}
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -25,15 +48,16 @@ export default function Home() {
               {categories.map((category) => (
                 <Badge
                   key={category}
-                  variant="outline"
+                  variant={query.toLowerCase() === category.toLowerCase() ? "default" : "outline"}
                   className="cursor-pointer text-base px-4 py-1 border-accent/50 hover:bg-accent/20 hover:text-foreground transition-colors"
+                  onClick={() => handleCategoryClick(category)}
                 >
                   {category}
                 </Badge>
               ))}
             </div>
           </div>
-          <WallpaperGrid />
+          <WallpaperGrid query={query} />
         </div>
       </main>
       <AdBanner />
