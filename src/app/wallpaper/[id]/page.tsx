@@ -1,34 +1,116 @@
+'use client';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Download, Heart, Home, Lock, Share2, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Download, Heart, Home, Lock, Share2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { DownloadDialog } from '@/components/download-dialog';
+import { getWallpapers } from '@/lib/image-services/get-wallpapers';
+import { Wallpaper } from '@/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// In a real app, you would fetch this data based on the id
-const getWallpaperData = (id: string) => {
-  return {
-    id,
-    url: 'https://placehold.co/1080x1920.png',
-    author: 'Stell-AI-r Painter',
-    authorUrl: '#',
-    source: 'NASA Archives',
-    sourceUrl: '#',
-    tags: ['nebula', 'galaxy', 'stars'],
-    aiHint: 'space nebula',
+// This component now fetches all wallpapers for the given query
+// to enable client-side navigation.
+export default function WallpaperPage({ params, searchParams }: { params: { id: string }, searchParams: { q: string } }) {
+  const router = useRouter();
+  const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const query = searchParams.q || 'sci-fi';
+
+  useEffect(() => {
+    const fetchWallpapers = async () => {
+      setIsLoading(true);
+      // Fetch a larger list to make swiping more meaningful
+      const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
+      setWallpapers(fetchedWallpapers);
+      const index = fetchedWallpapers.findIndex(w => w.id === params.id);
+      setCurrentIndex(index);
+      setIsLoading(false);
+    };
+
+    fetchWallpapers();
+  }, [query, params.id]);
+
+  const navigateToWallpaper = useCallback((index: number) => {
+    if (index >= 0 && index < wallpapers.length) {
+      const wallpaper = wallpapers[index];
+      router.push(`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(query)}`);
+    }
+  }, [wallpapers, router, query]);
+
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && currentIndex < wallpapers.length - 1) {
+      navigateToWallpaper(currentIndex + 1);
+    } else if (direction === 'right' && currentIndex > 0) {
+      navigateToWallpaper(currentIndex - 1);
+    }
   };
-};
 
-export default function WallpaperPage({ params }: { params: { id: string } }) {
-  const wallpaper = getWallpaperData(params.id);
+  // Touch handling
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(0); // Reset touch end
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleSwipe('left');
+    } else if (isRightSwipe) {
+      handleSwipe('right');
+    }
+    
+    // Reset
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+  
+  if (isLoading || currentIndex === -1) {
+    return (
+      <div className="relative w-full h-screen bg-background">
+        <Skeleton className="w-full h-full" />
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
+    );
+  }
+  
+  const wallpaper = wallpapers[currentIndex];
+  if (!wallpaper) {
+      return (
+          <div className="relative w-full h-screen flex items-center justify-center bg-background text-foreground">
+              <p>Wallpaper not found or failed to load.</p>
+               <Button asChild variant="ghost" size="icon" className="absolute top-5 left-5 z-20 h-12 w-12 bg-black/30 hover:bg-black/50 text-white hover:text-primary">
+                <Link href="/">
+                  <ArrowLeft className="h-6 w-6" />
+                </Link>
+              </Button>
+          </div>
+      )
+  }
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full h-screen" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       <Image
+        key={wallpaper.id}
         src={wallpaper.url}
         alt={`Wallpaper ${wallpaper.id}`}
         fill
-        className="object-cover"
+        className="object-cover animate-fade-in"
         data-ai-hint={wallpaper.aiHint}
         priority
       />
@@ -38,6 +120,24 @@ export default function WallpaperPage({ params }: { params: { id: string } }) {
         <Link href="/">
           <ArrowLeft className="h-6 w-6" />
         </Link>
+      </Button>
+
+       {/* Prev/Next buttons for non-touch devices */}
+      <Button 
+        variant="ghost" size="icon" 
+        className="absolute top-1/2 left-2 -translate-y-1/2 z-20 h-14 w-14 bg-black/30 hover:bg-black/50 text-white hover:text-primary disabled:opacity-20 disabled:cursor-not-allowed hidden md:flex"
+        onClick={() => handleSwipe('right')}
+        disabled={currentIndex <= 0}
+      >
+        <ChevronLeft className="h-8 w-8" />
+      </Button>
+       <Button 
+        variant="ghost" size="icon" 
+        className="absolute top-1/2 right-2 -translate-y-1/2 z-20 h-14 w-14 bg-black/30 hover:bg-black/50 text-white hover:text-primary disabled:opacity-20 disabled:cursor-not-allowed hidden md:flex"
+        onClick={() => handleSwipe('left')}
+        disabled={currentIndex >= wallpapers.length - 1}
+      >
+        <ChevronRight className="h-8 w-8" />
       </Button>
       
       <div className="absolute bottom-0 left-0 right-0 z-10 p-5 bg-gradient-to-t from-black/80 via-black/50 to-transparent">

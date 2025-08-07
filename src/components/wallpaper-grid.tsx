@@ -38,6 +38,7 @@ export function WallpaperGrid({ query }: { query: string }) {
   }, [page, isLoading, hasMore, query]);
 
   useEffect(() => {
+    // If query changes, reset everything
     if (currentQueryRef.current !== query) {
         currentQueryRef.current = query;
         setWallpapers([]);
@@ -46,11 +47,13 @@ export function WallpaperGrid({ query }: { query: string }) {
     }
   }, [query]);
 
+   // Effect to load initial data or data when query has changed
    useEffect(() => {
-    if (page === 1 && hasMore && wallpapers.length === 0) {
+    // Only load if wallpapers are empty and we have a query to work with
+    if (wallpapers.length === 0 && hasMore && query) {
        loadMoreWallpapers();
     }
-  }, [page, hasMore, wallpapers.length, loadMoreWallpapers]);
+  }, [wallpapers.length, hasMore, query, loadMoreWallpapers]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -78,7 +81,7 @@ export function WallpaperGrid({ query }: { query: string }) {
     <div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {wallpapers.map((wallpaper, index) => (
-          <WallpaperCard key={`${wallpaper.id}-${index}`} wallpaper={wallpaper} />
+          <WallpaperCard key={`${wallpaper.id}-${index}`} wallpaper={wallpaper} query={query} />
         ))}
       </div>
       <div ref={loaderRef} className="col-span-full h-20">

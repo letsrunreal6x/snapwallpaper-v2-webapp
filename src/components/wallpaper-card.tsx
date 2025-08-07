@@ -4,10 +4,10 @@ import type { Wallpaper } from '@/lib/definitions';
 import { Badge } from './ui/badge';
 import { ExternalLink } from 'lucide-react';
 
-export function WallpaperCard({ wallpaper }: { wallpaper: Wallpaper }) {
+export function WallpaperCard({ wallpaper, query }: { wallpaper: Wallpaper, query: string }) {
   return (
     <Link
-      href={`/wallpaper/${wallpaper.id}`}
+      href={`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(query)}`}
       className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg"
     >
       <Image
