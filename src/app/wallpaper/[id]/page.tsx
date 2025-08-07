@@ -181,15 +181,6 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
                 <Heart className={`w-6 h-6 transition-colors ${isCurrentlyFavorite ? 'text-secondary fill-secondary' : 'text-white'}`} />
               </Button>
             </div>
-
-             <div className="flex items-center gap-2 bg-black/50 border border-border p-2 rounded-full">
-              <Button variant="ghost" className="text-white hover:text-primary hover:bg-white/10 rounded-full h-12 gap-2 px-4" disabled>
-                <Home className="w-5 h-5" /> Set Home
-              </Button>
-              <Button variant="ghost" className="text-white hover:text-primary hover:bg-white/10 rounded-full h-12 gap-2 px-4" disabled>
-                <Lock className="w-5 h-5" /> Set Lock
-              </Button>
-            </div>
           </div>
         </div>
       </div>
