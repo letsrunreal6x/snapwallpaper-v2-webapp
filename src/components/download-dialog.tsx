@@ -92,7 +92,11 @@ export function DownloadDialog({ wallpaperUrl, wallpaperId }: DownloadDialogProp
   return (
     <AlertDialog onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full h-12 w-12">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-white bg-black/50 backdrop-blur-sm rounded-full h-12 w-12 hover:bg-black/70 hover:text-primary"
+        >
           {isDownloading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Download className="w-6 h-6" />}
         </Button>
       </AlertDialogTrigger>

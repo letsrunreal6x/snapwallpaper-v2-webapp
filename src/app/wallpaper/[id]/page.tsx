@@ -1,189 +1,38 @@
 
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Download, Heart, Share2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DownloadDialog } from '@/components/download-dialog';
-import { getWallpapers } from '@/lib/image-services/get-wallpapers';
-import type { Wallpaper } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useFavorites } from '@/hooks/use-favorites';
 
-export default function WallpaperPage({ params, searchParams }: { params: { id: string }, searchParams: { q: string } }) {
-  const router = useRouter();
-  const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentQuery, setCurrentQuery] = useState('');
-  const { toggleFavorite, isFavorite } = useFavorites();
-  
-  useEffect(() => {
-    const fetchWallpapers = async () => {
-      // Access params and searchParams inside the effect
-      const id = params.id;
-      const query = searchParams.q || 'sci-fi';
-      
-      if (!id) return;
-      
-      setCurrentQuery(query);
-      setIsLoading(true);
-      try {
-        // Fetch a larger list to make navigation feel more complete
-        const fetchedWallpapers = await getWallpapers({ query: query, page: 1, per_page: 50 });
-        setWallpapers(fetchedWallpapers);
-        
-        const index = fetchedWallpapers.findIndex(w => w.id === id);
-        setCurrentIndex(index);
-      } catch (error) {
-        console.error("Failed to load wallpapers:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+import Header from "@/components/header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-    fetchWallpapers();
-  }, [params, searchParams]); // Depend on the objects themselves
 
-  const navigateToWallpaper = useCallback((index: number) => {
-    if (index >= 0 && index < wallpapers.length) {
-      const wallpaper = wallpapers[index];
-      router.push(`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(currentQuery)}`);
-    }
-  }, [wallpapers, router, currentQuery]);
-
-  const handleSwipe = (direction: 'left' | 'right') => {
-    if (direction === 'left' && currentIndex < wallpapers.length - 1) {
-      navigateToWallpaper(currentIndex + 1);
-    } else if (direction === 'right' && currentIndex > 0) {
-      navigateToWallpaper(currentIndex - 1);
-    }
-  };
-
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(0);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe) {
-      handleSwipe('left');
-    } else if (isRightSwipe) {
-      handleSwipe('right');
-    }
+export default function WallpaperDetailPage() {
     
-    setTouchStart(0);
-    setTouchEnd(0);
-  };
-  
-  if (isLoading || currentIndex === -1) {
     return (
-      <div className="relative w-full h-screen bg-background">
-        <Skeleton className="w-full h-full" />
-        <div className="absolute inset-0 bg-black/30" />
-         <Button asChild variant="ghost" size="icon" className="absolute top-5 left-5 z-20 h-12 w-12 bg-black/30 hover:bg-black/50 text-white hover:text-primary">
-            <Link href="/">
-              <ArrowLeft className="h-6 w-6" />
-            </Link>
-        </Button>
-      </div>
-    );
-  }
-  
-  const wallpaper = wallpapers[currentIndex];
-  if (!wallpaper) {
-      return (
-          <div className="relative w-full h-screen flex items-center justify-center bg-background text-foreground">
-              <p>Wallpaper not found or failed to load.</p>
-               <Button asChild variant="ghost" size="icon" className="absolute top-5 left-5 z-20 h-12 w-12 bg-black/30 hover:bg-black/50 text-white hover:text-primary">
-                <Link href="/">
-                  <ArrowLeft className="h-6 w-6" />
-                </Link>
-              </Button>
-          </div>
-      )
-  }
-  
-  const isCurrentlyFavorite = isFavorite(wallpaper.id);
-
-  return (
-    <div className="relative w-full h-screen" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-      <Image
-        key={wallpaper.id}
-        src={wallpaper.url}
-        alt={`Wallpaper ${wallpaper.id}`}
-        fill
-        className="object-cover animate-fade-in"
-        data-ai-hint={wallpaper.aiHint}
-        priority
-      />
-      <div className="absolute inset-0 bg-black/30" />
-      
-      <Button asChild variant="ghost" size="icon" className="absolute top-5 left-5 z-20 h-12 w-12 bg-black/30 hover:bg-black/50 text-white hover:text-primary">
-        <Link href="/">
-          <ArrowLeft className="h-6 w-6" />
-        </Link>
-      </Button>
-
-      <Button 
-        variant="ghost" size="icon" 
-        className="absolute top-1/2 left-2 -translate-y-1/2 z-20 h-14 w-14 bg-black/30 hover:bg-black/50 text-white hover:text-primary disabled:opacity-20 disabled:cursor-not-allowed hidden md:flex"
-        onClick={() => handleSwipe('right')}
-        disabled={currentIndex <= 0}
-      >
-        <ChevronLeft className="h-8 w-8" />
-      </Button>
-       <Button 
-        variant="ghost" size="icon" 
-        className="absolute top-1/2 right-2 -translate-y-1/2 z-20 h-14 w-14 bg-black/30 hover:bg-black/50 text-white hover:text-primary disabled:opacity-20 disabled:cursor-not-allowed hidden md:flex"
-        onClick={() => handleSwipe('left')}
-        disabled={currentIndex >= wallpapers.length - 1}
-      >
-        <ChevronRight className="h-8 w-8" />
-      </Button>
-      
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-5 bg-gradient-to-t from-black/80 via-black/50 to-transparent">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-white text-center md:text-left">
-              <h1 className="font-headline text-2xl font-bold text-glow">
-                Cosmic Drift
-              </h1>
-              <p>by <a href={wallpaper.authorUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{wallpaper.author}</a> from <a href={wallpaper.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{wallpaper.source}</a></p>
-            </div>
-
-            <div className="flex items-center gap-2 bg-black/50 border border-border p-2 rounded-full">
-              <DownloadDialog wallpaperUrl={wallpaper.url} wallpaperId={wallpaper.id} />
-              <Button variant="ghost" size="icon" className="text-white hover:text-primary hover:bg-white/10 rounded-full h-12 w-12">
-                <Share2 className="w-6 h-6" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-white hover:text-secondary hover:bg-white/10 rounded-full h-12 w-12"
-                onClick={() => toggleFavorite({ ...wallpaper, query: currentQuery })}
-              >
-                <Heart className={`w-6 h-6 transition-colors ${isCurrentlyFavorite ? 'text-secondary fill-secondary' : 'text-white'}`} />
-              </Button>
-            </div>
-          </div>
+        <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+                <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-3xl text-glow flex items-center gap-3">
+                            Page Removed
+                        </CardTitle>
+                         <CardDescription className="mt-2">
+                            This page is no longer in use. You can download and favorite wallpapers directly from the main screen.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       <Button asChild>
+                            <Link href="/">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Go back to Home
+                            </Link>
+                       </Button>
+                    </CardContent>
+                </Card>
+            </main>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

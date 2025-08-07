@@ -3,21 +3,18 @@
 
 import { useState, useEffect } from 'react';
 import Header from '@/components/header';
-import { WallpaperGrid } from '@/components/wallpaper-grid';
+import { WallpaperCard } from '@/components/wallpaper-card';
 import { useFavorites } from '@/hooks/use-favorites';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
+import type { Wallpaper } from '@/lib/definitions';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
-  const [favoriteWallpapers, setFavoriteWallpapers] = useState<any[]>([]);
+  const [favoriteWallpapers, setFavoriteWallpapers] = useState<Wallpaper[]>([]);
 
   useEffect(() => {
-    // Since favorites from localStorage are just objects, we map them
-    // to match the expected Wallpaper type for WallpaperGrid if needed,
-    // or just pass them if the grid is flexible. For now, we'll assume
-    // the grid can handle the stored favorite objects.
     setFavoriteWallpapers(favorites);
   }, [favorites]);
 
@@ -29,21 +26,11 @@ export default function FavoritesPage() {
         {favoriteWallpapers.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
              {favoriteWallpapers.map((wallpaper, index) => (
-                <div key={`${wallpaper.id}-${index}`} className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg">
-                    <Link
-                        href={`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(wallpaper.query || 'favorites')}`}
-                        className="block w-full h-full"
-                    >
-                        <img
-                            src={wallpaper.previewUrl}
-                            alt={`Wallpaper by ${wallpaper.author}`}
-                            className="object-cover w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-110"
-                        />
-                         <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                        <div className="absolute inset-0 rounded-lg border-2 border-transparent transition-all duration-300 group-hover:border-primary group-hover:box-glow"></div>
-                    </Link>
-                </div>
-
+                <WallpaperCard 
+                    key={`${wallpaper.id}-${index}`} 
+                    wallpaper={wallpaper} 
+                    query={wallpaper.query || 'favorites'} 
+                />
             ))}
           </div>
         ) : (
