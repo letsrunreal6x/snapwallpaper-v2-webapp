@@ -20,6 +20,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   
   useEffect(() => {
     const fetchWallpapers = async () => {
+      // Access params and searchParams inside the effect
       const id = params.id;
       const query = searchParams.q || 'sci-fi';
       setCurrentQuery(query);
@@ -41,7 +42,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
     };
 
     fetchWallpapers();
-  }, [params.id, searchParams.q]);
+  }, [params.id, searchParams.q, params, searchParams]); // Add params and searchParams to dependency array
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
