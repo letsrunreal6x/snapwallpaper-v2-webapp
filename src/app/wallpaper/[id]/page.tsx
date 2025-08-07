@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
@@ -151,7 +152,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
             </div>
 
             <div className="flex items-center gap-2 bg-black/50 border border-border p-2 rounded-full">
-              <DownloadDialog />
+              <DownloadDialog wallpaperUrl={wallpaper.url} wallpaperId={wallpaper.id} />
               <Button variant="ghost" size="icon" className="text-white hover:text-primary hover:bg-white/10 rounded-full h-12 w-12">
                 <Share2 className="w-6 h-6" />
               </Button>
