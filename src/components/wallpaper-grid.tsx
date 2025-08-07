@@ -12,14 +12,28 @@ import { InGridAdCard } from './in-grid-ad-card';
 const AD_FREQUENCY = 4; // Show an ad every 4 items
 
 function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-    return array;
+    return newArray;
 }
 
-export function WallpaperGrid({ query }: { query: string }) {
+function addAdsToItems(items: Wallpaper[]): (Wallpaper | { isAd: true })[] {
+  const itemsWithAds: (Wallpaper | { isAd: true })[] = [];
+  let wallpaperCount = 0;
+  items.forEach((wallpaper) => {
+    itemsWithAds.push(wallpaper);
+    wallpaperCount++;
+    if (wallpaperCount % AD_FREQUENCY === 0) {
+      itemsWithAds.push({ isAd: true });
+    }
+  });
+  return itemsWithAds;
+}
+
+export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, reshuffleTrigger: number }) {
   const [items, setItems] = useState<(Wallpaper | { isAd: true })[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -33,7 +47,7 @@ export function WallpaperGrid({ query }: { query: string }) {
   useEffect(() => {
     const lastPathname = lastPathnameRef.current;
     if (pathname === '/' && lastPathname !== '/') {
-      setItems((prevItems) => shuffleArray([...prevItems]));
+      setItems((prevItems) => shuffleArray(prevItems));
       window.scrollTo(0, 0);
     }
     lastPathnameRef.current = pathname;
@@ -43,7 +57,7 @@ export function WallpaperGrid({ query }: { query: string }) {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        setItems((prevItems) => shuffleArray([...prevItems]));
+        setItems((prevItems) => shuffleArray(prevItems));
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -65,19 +79,10 @@ export function WallpaperGrid({ query }: { query: string }) {
         setHasMore(false);
       } else {
         setItems((prevItems) => {
-            const currentItems = isNewQuery ? [] : prevItems;
-            const newItemsWithAds: (Wallpaper | { isAd: true })[] = [...currentItems];
-            
-            newWallpapers.forEach((wallpaper) => {
-              newItemsWithAds.push(wallpaper);
-              // Add an ad after a certain number of wallpapers
-              const wallpaperCount = newItemsWithAds.filter(item => !('isAd' in item)).length;
-              if (wallpaperCount > 0 && wallpaperCount % AD_FREQUENCY === 0) {
-                  newItemsWithAds.push({ isAd: true });
-              }
-            });
-
-            return isNewQuery ? shuffleArray(newItemsWithAds) : newItemsWithAds;
+            const currentWallpapers = isNewQuery ? [] : prevItems.filter(item => !('isAd' in item)) as Wallpaper[];
+            const updatedWallpapers = [...currentWallpapers, ...newWallpapers];
+            const itemsWithAds = addAdsToItems(updatedWallpapers);
+            return isNewQuery ? shuffleArray(itemsWithAds) : itemsWithAds;
         });
         setPage(loadPage + 1);
         if(isNewQuery) setHasMore(true);
@@ -88,6 +93,40 @@ export function WallpaperGrid({ query }: { query: string }) {
       setIsLoading(false);
     }
   }, [page, isLoading, hasMore, query]);
+
+  const handleReshuffle = useCallback(async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const currentWallpapers = items.filter(item => !('isAd' in item)) as Wallpaper[];
+      const countToFetch = Math.ceil(currentWallpapers.length * 0.6);
+      
+      if (countToFetch > 0) {
+        const newWallpapers = await getWallpapers({ query, page: page + 1, per_page: countToFetch });
+        setPage(prev => prev + 1); // Increment page to get new images next time
+        
+        const combined = [...currentWallpapers, ...newWallpapers];
+        const shuffledWithAds = addAdsToItems(shuffleArray(combined));
+
+        setItems(shuffledWithAds);
+      } else {
+        // If there are no items, just load the first page
+        loadMoreWallpapers(true);
+      }
+    } catch(error) {
+      console.error("Failed to reshuffle:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [items, isLoading, query, page, loadMoreWallpapers]);
+
+  useEffect(() => {
+    if (reshuffleTrigger > 0) {
+      handleReshuffle();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reshuffleTrigger]);
 
   useEffect(() => {
     if (currentQueryRef.current !== query) {

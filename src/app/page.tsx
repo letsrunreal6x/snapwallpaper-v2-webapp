@@ -7,12 +7,14 @@ import Header from '@/components/header';
 import { WallpaperGrid } from '@/components/wallpaper-grid';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, MoreHorizontal } from 'lucide-react';
+import { Search, MoreHorizontal, Shuffle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { OnboardingDialog } from '@/components/onboarding-dialog';
 import { TermsDialog } from '@/components/terms-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 
 const ONBOARDING_KEY = 'snapwallpaper_onboarding_complete';
 const TERMS_ACCEPTED_KEY = 'snapwallpaper_terms_accepted';
@@ -23,6 +25,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [reshuffleTrigger, setReshuffleTrigger] = useState(0);
   
   const [showTerms, setShowTerms] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -200,6 +203,10 @@ export default function Home() {
     setPopoverOpen(false);
   };
 
+  const handleReshuffle = () => {
+    setReshuffleTrigger(prev => prev + 1);
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -214,7 +221,7 @@ export default function Home() {
         {isAppReady ? (
           <div className="container mx-auto px-4 py-8">
             <div className="mb-8 space-y-4">
-              <div className="relative">
+              <div className="relative flex items-center gap-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Search wallpapers..."
@@ -223,6 +230,18 @@ export default function Home() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleSearch}
                 />
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-12 w-12 flex-shrink-0" onClick={handleReshuffle}>
+                                <Shuffle className="w-5 h-5" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Shuffle & Add New</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-medium mr-2">Categories:</span>
@@ -279,7 +298,7 @@ export default function Home() {
 
               </div>
             </div>
-            <WallpaperGrid query={query} />
+            <WallpaperGrid query={query} reshuffleTrigger={reshuffleTrigger} />
           </div>
         ) : (
           <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
@@ -291,5 +310,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
