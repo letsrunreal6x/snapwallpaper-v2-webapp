@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import type { Wallpaper } from '@/lib/definitions';
 import { WallpaperCard } from './wallpaper-card';
 import { Skeleton } from './ui/skeleton';
@@ -10,6 +11,14 @@ import { InGridAdCard } from './in-grid-ad-card';
 
 const AD_FREQUENCY = 8; // Show an ad every 8 items
 
+function shuffleArray<T>(array: T[]): T[] {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 export function WallpaperGrid({ query }: { query: string }) {
   const [items, setItems] = useState<(Wallpaper | { isAd: true })[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,6 +26,18 @@ export function WallpaperGrid({ query }: { query: string }) {
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
   const currentQueryRef = useRef(query);
+  const pathname = usePathname();
+  const lastPathnameRef = useRef(pathname);
+
+  // Reshuffle on navigating back to home
+  useEffect(() => {
+    const lastPathname = lastPathnameRef.current;
+    if (pathname === '/' && lastPathname !== '/') {
+      setItems((prevItems) => shuffleArray([...prevItems]));
+      window.scrollTo(0, 0);
+    }
+    lastPathnameRef.current = pathname;
+  }, [pathname]);
 
   const loadMoreWallpapers = useCallback(async (isNewQuery = false) => {
     if (isLoading || (!hasMore && !isNewQuery)) return;
@@ -31,21 +52,16 @@ export function WallpaperGrid({ query }: { query: string }) {
         setHasMore(false);
       } else {
         setItems((prevItems) => {
-            const currentWallpapers = isNewQuery ? [] : prevItems.filter(item => !('isAd' in item));
-            const allWallpapers = [...currentWallpapers, ...newWallpapers];
+            const currentItems = isNewQuery ? [] : prevItems;
+            const newItemsWithAds: (Wallpaper | { isAd: true })[] = [...currentItems];
             
-            // Re-build the list with ads
-            const newItemsWithAds: (Wallpaper | { isAd: true })[] = [];
-            const seenIds = new Set(currentWallpapers.map(w => w.id));
-
-            allWallpapers.forEach((wallpaper) => {
-                if (!seenIds.has(wallpaper.id)) {
-                    newItemsWithAds.push(wallpaper);
-                    seenIds.add(wallpaper.id);
-                    if (newItemsWithAds.filter(item => !('isAd' in item)).length % AD_FREQUENCY === 0) {
-                        newItemsWithAds.push({ isAd: true });
-                    }
-                }
+            newWallpapers.forEach((wallpaper) => {
+              newItemsWithAds.push(wallpaper);
+              // Add an ad after a certain number of wallpapers
+              const wallpaperCount = newItemsWithAds.filter(item => !('isAd' in item)).length;
+              if (wallpaperCount > 0 && wallpaperCount % AD_FREQUENCY === 0) {
+                  newItemsWithAds.push({ isAd: true });
+              }
             });
 
             return newItemsWithAds;
@@ -66,6 +82,7 @@ export function WallpaperGrid({ query }: { query: string }) {
         setItems([]);
         setPage(1);
         setHasMore(true);
+        window.scrollTo(0, 0);
         // Use a timeout to allow state to clear before fetching
         setTimeout(() => loadMoreWallpapers(true), 0);
     }
