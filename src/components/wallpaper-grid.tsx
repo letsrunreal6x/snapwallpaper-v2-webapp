@@ -18,43 +18,40 @@ export function WallpaperGrid({ query }: { query: string }) {
   const loaderRef = useRef<HTMLDivElement>(null);
   const currentQueryRef = useRef(query);
 
-  const loadMoreWallpapers = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+  const loadMoreWallpapers = useCallback(async (isNewQuery = false) => {
+    if (isLoading || (!hasMore && !isNewQuery)) return;
+    
     setIsLoading(true);
+
+    const loadPage = isNewQuery ? 1 : page;
+    
     try {
-      const newWallpapers = await getWallpapers({ query, page, per_page: 12 });
+      const newWallpapers = await getWallpapers({ query, page: loadPage, per_page: 12 });
       if (newWallpapers.length === 0) {
         setHasMore(false);
       } else {
         setItems((prevItems) => {
-            const newItems: (Wallpaper | { isAd: true })[] = [...prevItems];
-            const wallpaperOnlyCount = newItems.filter(item => !('isAd' in item)).length;
+            const currentWallpapers = isNewQuery ? [] : prevItems.filter(item => !('isAd' in item));
+            const allWallpapers = [...currentWallpapers, ...newWallpapers];
             
-            newWallpapers.forEach((wallpaper, index) => {
-                const currentTotalWallpapers = wallpaperOnlyCount + index + 1;
-                // Add wallpaper
-                newItems.push(wallpaper);
-                // Check if we should add an ad
-                if (currentTotalWallpapers % AD_FREQUENCY === 0) {
-                    newItems.push({ isAd: true });
+            // Re-build the list with ads
+            const newItemsWithAds: (Wallpaper | { isAd: true })[] = [];
+            const seenIds = new Set(currentWallpapers.map(w => w.id));
+
+            allWallpapers.forEach((wallpaper) => {
+                if (!seenIds.has(wallpaper.id)) {
+                    newItemsWithAds.push(wallpaper);
+                    seenIds.add(wallpaper.id);
+                    if (newItemsWithAds.filter(item => !('isAd' in item)).length % AD_FREQUENCY === 0) {
+                        newItemsWithAds.push({ isAd: true });
+                    }
                 }
             });
 
-            // Filter out duplicate wallpapers just in case
-            const uniqueNewItems: (Wallpaper | { isAd: true })[] = [];
-            const seenIds = new Set();
-            newItems.forEach(item => {
-                if ('isAd' in item) {
-                    uniqueNewItems.push(item); // Keep ad placeholders
-                } else if (!seenIds.has(item.id)) {
-                    uniqueNewItems.push(item);
-                    seenIds.add(item.id);
-                }
-            });
-
-            return uniqueNewItems;
+            return newItemsWithAds;
         });
-        setPage((prev) => prev + 1);
+        setPage(loadPage + 1);
+        if(isNewQuery) setHasMore(true);
       }
     } catch (error) {
       console.error("Failed to load wallpapers:", error);
@@ -64,22 +61,24 @@ export function WallpaperGrid({ query }: { query: string }) {
   }, [page, isLoading, hasMore, query]);
 
   useEffect(() => {
-    // If query changes, reset everything
     if (currentQueryRef.current !== query) {
         currentQueryRef.current = query;
         setItems([]);
         setPage(1);
         setHasMore(true);
+        // Use a timeout to allow state to clear before fetching
+        setTimeout(() => loadMoreWallpapers(true), 0);
     }
-  }, [query]);
+  }, [query, loadMoreWallpapers]);
 
-   // Effect to load initial data or data when query has changed
+   // Effect to load initial data
    useEffect(() => {
-    // Only load if items are empty and we have a query to work with
     if (items.length === 0 && hasMore && query) {
-       loadMoreWallpapers();
+       loadMoreWallpapers(true);
     }
-  }, [items.length, hasMore, query, loadMoreWallpapers]);
+    // We only want this to run once on initial load or if query was cleared then re-populated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -123,7 +122,7 @@ export function WallpaperGrid({ query }: { query: string }) {
           </div>
         )}
       </div>
-      {!isLoading && !hasMore && (
+      {!isLoading && !hasMore && items.length > 0 && (
         <div className="text-center col-span-full py-8 text-muted-foreground">
             <p>You've reached the end of the galaxy.</p>
         </div>
