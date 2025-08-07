@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Wrench, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { Button } from './ui/button';
 
 export default function Header() {
@@ -17,12 +17,6 @@ export default function Header() {
             <Link href="/favorites">
               <Heart className="h-5 w-5 text-secondary hover:text-glow-secondary transition-all" />
               <span className="sr-only">Favorites</span>
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/api-keys">
-              <Wrench className="h-5 w-5 text-primary hover:text-glow transition-all" />
-              <span className="sr-only">API Key Management</span>
             </Link>
           </Button>
         </nav>
