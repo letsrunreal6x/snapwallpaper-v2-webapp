@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Wallpaper } from '@/lib/definitions';
 
-const FAVORITES_KEY = 'astrowalls_favorites';
+const FAVORITES_KEY = 'snapwallpaper_favorites';
 
 export const useFavorites = () => {
   const [favorites, setFavorites] = useState<Wallpaper[]>([]);

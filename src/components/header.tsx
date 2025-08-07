@@ -9,7 +9,7 @@ export default function Header() {
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <span className="font-headline text-3xl font-bold text-glow tracking-wider animate-flicker">
-            AstroWalls
+            SnapWallpaper
           </span>
         </Link>
         <nav className="flex items-center gap-2">

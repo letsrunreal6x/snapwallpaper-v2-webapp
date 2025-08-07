@@ -42,7 +42,7 @@ export function DownloadDialog({ wallpaperUrl, wallpaperId }: DownloadDialogProp
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `astrowall-${wallpaperId}.jpg`;
+      a.download = `snapwallpaper-${wallpaperId}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
