@@ -7,13 +7,16 @@ import Header from '@/components/header';
 import { WallpaperGrid } from '@/components/wallpaper-grid';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
 export default function Home() {
   const [query, setQuery] = useState('sci-fi');
   const [inputValue, setInputValue] = useState('');
+  const [showMore, setShowMore] = useState(false);
 
-  const categories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic', 'Robots', 'Planets', 'Alien', 'Cityscape'];
+  const allCategories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic', 'Robots', 'Planets', 'Alien', 'Cityscape', 'Galaxy', 'Stars', 'Spaceship'];
+  const initialCategories = allCategories.slice(0, 7);
+  const categoriesToShow = showMore ? allCategories : initialCategories;
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue) {
@@ -45,7 +48,7 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium mr-2">Categories:</span>
-              {categories.map((category) => (
+              {categoriesToShow.map((category) => (
                 <Badge
                   key={category}
                   variant={query.toLowerCase() === category.toLowerCase() ? "default" : "outline"}
@@ -55,6 +58,15 @@ export default function Home() {
                   {category}
                 </Badge>
               ))}
+              {!showMore && (
+                 <Badge
+                    variant="outline"
+                    className="cursor-pointer text-base px-4 py-1 border-accent/50 hover:bg-accent/20 hover:text-foreground transition-colors flex items-center gap-1"
+                    onClick={() => setShowMore(true)}
+                  >
+                   <Plus className="w-4 h-4" /> More
+                  </Badge>
+              )}
             </div>
           </div>
           <WallpaperGrid query={query} />
