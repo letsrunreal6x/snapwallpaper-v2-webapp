@@ -18,22 +18,32 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
+  const [id, setId] = useState('');
 
   const query = searchParams.q || 'sci-fi';
 
   useEffect(() => {
+    // In recent Next.js versions, `params` can be a promise.
+    // We resolve it into state to safely use it in effects.
+    if (params) {
+      setId(params.id);
+    }
+  }, [params]);
+
+  useEffect(() => {
     const fetchWallpapers = async () => {
+      if (!id) return;
       setIsLoading(true);
       // Fetch a larger list to make swiping more meaningful
       const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
       setWallpapers(fetchedWallpapers);
-      const index = fetchedWallpapers.findIndex(w => w.id === params.id);
+      const index = fetchedWallpapers.findIndex(w => w.id === id);
       setCurrentIndex(index);
       setIsLoading(false);
     };
 
     fetchWallpapers();
-  }, [query, params.id]);
+  }, [query, id]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
