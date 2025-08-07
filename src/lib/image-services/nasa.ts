@@ -35,8 +35,9 @@ export async function search({ per_page }: { query: string; page: number; per_pa
             url: item.hdurl,
             previewUrl: item.url,
             author: item.copyright || 'NASA',
-            authorUrl: '#',
+            authorUrl: 'https://www.nasa.gov/',
             source: 'NASA',
+            sourceUrl: item.url,
             tags: [item.title.toLowerCase().split(' ')[0], 'space'],
             aiHint: 'nasa space',
             width: 1920, // APOD images don't have standard sizes, providing sensible defaults

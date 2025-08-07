@@ -32,6 +32,7 @@ export async function search({ query, page, per_page }: { query: string; page: n
         author: photo.photographer,
         authorUrl: photo.photographer_url,
         source: 'Pexels',
+        sourceUrl: photo.url,
         tags: query.split(' '),
         aiHint: `${photo.alt?.split(' ')[0]} ${photo.alt?.split(' ')[1]}`,
         width: photo.width,

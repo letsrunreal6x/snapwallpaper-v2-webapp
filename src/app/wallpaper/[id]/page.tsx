@@ -162,7 +162,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
               <h1 className="font-headline text-2xl font-bold text-glow">
                 Cosmic Drift
               </h1>
-              <p>by <a href={wallpaper.authorUrl} className="underline hover:text-primary">{wallpaper.author}</a> from <a href={wallpaper.sourceUrl} className="underline hover:text-primary">{wallpaper.source}</a></p>
+              <p>by <a href={wallpaper.authorUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{wallpaper.author}</a> from <a href={wallpaper.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">{wallpaper.source}</a></p>
             </div>
 
             <div className="flex items-center gap-2 bg-black/50 border border-border p-2 rounded-full">

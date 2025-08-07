@@ -39,6 +39,7 @@ export async function search({ query, page, per_page }: { query: string; page: n
             author: photo.user.name,
             authorUrl: photo.user.links.html,
             source: 'Unsplash',
+            sourceUrl: photo.links.html,
             tags: photo.tags.map(t => t.title),
             aiHint: `${photo.alt_description?.split(" ").slice(0,2).join(" ")}`,
             width: photo.width,

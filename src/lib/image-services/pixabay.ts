@@ -14,6 +14,7 @@ type PixabayImage = {
     largeImageURL: string;
     user: string;
     userImageURL: string;
+    user_id: number;
     imageWidth: number;
     imageHeight: number;
 };
@@ -46,8 +47,9 @@ export async function search({ query, page, per_page }: { query: string; page: n
             url: image.largeImageURL,
             previewUrl: image.webformatURL,
             author: image.user,
-            authorUrl: `https://pixabay.com/users/${image.user}-${image.id}/`, // Pixabay doesn't have a direct user URL in response
+            authorUrl: `https://pixabay.com/users/${image.user}-${image.user_id}/`,
             source: 'Pixabay',
+            sourceUrl: image.pageURL,
             tags: image.tags.split(', '),
             aiHint: image.tags.split(', ').slice(0, 2).join(' '),
             width: image.imageWidth,
