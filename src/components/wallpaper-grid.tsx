@@ -9,7 +9,7 @@ import { Skeleton } from './ui/skeleton';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import { InGridAdCard } from './in-grid-ad-card';
 
-const AD_FREQUENCY = 8; // Show an ad every 8 items
+const AD_FREQUENCY = 4; // Show an ad every 4 items
 
 function shuffleArray<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
