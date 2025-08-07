@@ -8,6 +8,7 @@ import { WallpaperCard } from './wallpaper-card';
 import { Skeleton } from './ui/skeleton';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import { InGridAdCard } from './in-grid-ad-card';
+import { WallpaperViewer } from './wallpaper-viewer';
 
 const AD_FREQUENCY = 4; // Show an ad every 4 items
 
@@ -42,6 +43,21 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   const currentQueryRef = useRef(query);
   const pathname = usePathname();
   const lastPathnameRef = useRef(pathname);
+
+  // State for the viewer
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedWallpaperIndex, setSelectedWallpaperIndex] = useState(0);
+
+  const wallpapersOnly = items.filter(item => !('isAd' in item)) as Wallpaper[];
+
+  const handleWallpaperSelect = (selectedWallpaper: Wallpaper) => {
+    const index = wallpapersOnly.findIndex(w => w.id === selectedWallpaper.id);
+    if (index !== -1) {
+      setSelectedWallpaperIndex(index);
+      setViewerOpen(true);
+    }
+  };
+
 
   // Reshuffle on navigating back to home
   useEffect(() => {
@@ -173,11 +189,17 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   
   return (
     <div>
+        <WallpaperViewer 
+            open={viewerOpen}
+            onOpenChange={setViewerOpen}
+            wallpapers={wallpapersOnly}
+            startIndex={selectedWallpaperIndex}
+        />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {items.map((item, index) => (
            ('isAd' in item) 
              ? <InGridAdCard key={`ad-${index}`} />
-             : <WallpaperCard key={`${item.id}-${index}`} wallpaper={item} query={query} />
+             : <WallpaperCard key={`${item.id}-${index}`} wallpaper={item} query={query} onWallpaperSelect={handleWallpaperSelect} />
         ))}
       </div>
       <div ref={loaderRef} className="col-span-full h-20">

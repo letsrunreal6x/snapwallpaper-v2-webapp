@@ -6,7 +6,14 @@ import { Heart } from 'lucide-react';
 import { DownloadDialog } from './download-dialog';
 import React from 'react';
 
-function WallpaperCardComponent({ wallpaper, query }: { wallpaper: Wallpaper, query: string }) {
+interface WallpaperCardProps {
+  wallpaper: Wallpaper;
+  query: string;
+  onWallpaperSelect: (wallpaper: Wallpaper) => void;
+}
+
+
+function WallpaperCardComponent({ wallpaper, query, onWallpaperSelect }: WallpaperCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const isCurrentlyFavorite = isFavorite(wallpaper.id);
 
@@ -15,9 +22,16 @@ function WallpaperCardComponent({ wallpaper, query }: { wallpaper: Wallpaper, qu
     e.stopPropagation(); 
     toggleFavorite({ ...wallpaper, query });
   };
+  
+  const handleCardClick = () => {
+    onWallpaperSelect(wallpaper);
+  }
 
   return (
-    <div className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300">
+    <div 
+      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300 cursor-pointer"
+      onClick={handleCardClick}
+    >
         <Image
           src={wallpaper.previewUrl}
           alt={wallpaper.aiHint || `Wallpaper by ${wallpaper.author}`}
@@ -28,8 +42,8 @@ function WallpaperCardComponent({ wallpaper, query }: { wallpaper: Wallpaper, qu
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
         
-        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
-            <DownloadDialog wallpaperUrl={wallpaper.url} wallpaperId={wallpaper.id} />
+        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div onClick={(e) => e.stopPropagation()}><DownloadDialog wallpaperUrl={wallpaper.url} wallpaperId={wallpaper.id} /></div>
             <button 
                 className="text-white bg-black/50 backdrop-blur-sm rounded-full h-12 w-12 hover:bg-black/70 hover:text-secondary flex items-center justify-center transition-all"
                 onClick={handleFavoriteClick}
