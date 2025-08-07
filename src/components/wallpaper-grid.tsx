@@ -22,7 +22,11 @@ export function WallpaperGrid() {
       if (newWallpapers.length === 0) {
         setHasMore(false);
       } else {
-        setWallpapers((prev) => [...prev, ...newWallpapers]);
+        setWallpapers((prev) => {
+            const existingIds = new Set(prev.map(w => w.id));
+            const uniqueNewWallpapers = newWallpapers.filter(w => !existingIds.has(w.id));
+            return [...prev, ...uniqueNewWallpapers];
+        });
         setPage((prev) => prev + 1);
       }
     } catch (error) {
