@@ -39,6 +39,19 @@ export function WallpaperGrid({ query }: { query: string }) {
     lastPathnameRef.current = pathname;
   }, [pathname]);
 
+  // Reshuffle when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setItems((prevItems) => shuffleArray([...prevItems]));
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   const loadMoreWallpapers = useCallback(async (isNewQuery = false) => {
     if (isLoading || (!hasMore && !isNewQuery)) return;
     
@@ -64,7 +77,7 @@ export function WallpaperGrid({ query }: { query: string }) {
               }
             });
 
-            return newItemsWithAds;
+            return isNewQuery ? shuffleArray(newItemsWithAds) : newItemsWithAds;
         });
         setPage(loadPage + 1);
         if(isNewQuery) setHasMore(true);
