@@ -1,3 +1,4 @@
+
 'use server';
 import { createApi } from 'unsplash-js';
 import type { Wallpaper } from '@/lib/definitions';
@@ -41,7 +42,7 @@ export async function search({ query, page, per_page }: { query: string; page: n
             source: 'Unsplash',
             sourceUrl: photo.links.html,
             tags: photo.tags.map(t => t.title),
-            aiHint: `${photo.alt_description?.split(" ").slice(0,2).join(" ")}`,
+            aiHint: (photo.alt_description || '').split(" ").slice(0,2).join(" "),
             width: photo.width,
             height: photo.height,
         }));

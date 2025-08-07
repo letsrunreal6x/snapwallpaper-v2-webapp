@@ -1,3 +1,4 @@
+
 'use server';
 import { createClient, PhotosWithTotalResults, ErrorResponse } from 'pexels';
 import type { Wallpaper } from '@/lib/definitions';
@@ -34,7 +35,7 @@ export async function search({ query, page, per_page }: { query: string; page: n
         source: 'Pexels',
         sourceUrl: photo.url,
         tags: query.split(' '),
-        aiHint: `${photo.alt?.split(' ')[0]} ${photo.alt?.split(' ')[1]}`,
+        aiHint: `${photo.alt?.split(' ')[0] || ''} ${photo.alt?.split(' ')[1] || ''}`.trim(),
         width: photo.width,
         height: photo.height,
     }));

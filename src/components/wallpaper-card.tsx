@@ -6,7 +6,7 @@ import { Heart } from 'lucide-react';
 import { DownloadDialog } from './download-dialog';
 import React from 'react';
 
-export function WallpaperCard({ wallpaper, query }: { wallpaper: Wallpaper, query: string }) {
+function WallpaperCardComponent({ wallpaper, query }: { wallpaper: Wallpaper, query: string }) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const isCurrentlyFavorite = isFavorite(wallpaper.id);
 
@@ -40,3 +40,6 @@ export function WallpaperCard({ wallpaper, query }: { wallpaper: Wallpaper, quer
     </div>
   );
 }
+
+// Memoize the component to prevent re-renders when parent state changes
+export const WallpaperCard = React.memo(WallpaperCardComponent);
