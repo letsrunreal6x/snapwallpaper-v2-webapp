@@ -22,8 +22,8 @@ export function WallpaperCard({ wallpaper }: { wallpaper: Wallpaper }) {
       <div className="absolute inset-0 rounded-lg border-2 border-transparent transition-all duration-300 group-hover:border-primary group-hover:box-glow"></div>
       <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 transition-all duration-300 group-hover:opacity-100">
         <div className="flex flex-wrap gap-1">
-          {wallpaper.tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs bg-black/50 text-primary-foreground backdrop-blur-sm">
+          {wallpaper.tags.map((tag, index) => (
+            <Badge key={`${tag}-${index}`} variant="secondary" className="text-xs bg-black/50 text-primary-foreground backdrop-blur-sm">
               {tag}
             </Badge>
           ))}
