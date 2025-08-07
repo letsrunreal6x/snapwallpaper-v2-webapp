@@ -12,29 +12,52 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { OnboardingDialog } from '@/components/onboarding-dialog';
+import { TermsDialog } from '@/components/terms-dialog';
 
 const ONBOARDING_KEY = 'snapwallpaper_onboarding_complete';
+const TERMS_ACCEPTED_KEY = 'snapwallpaper_terms_accepted';
+
 
 export default function Home() {
   const [query, setQuery] = useState('sci-fi');
   const [inputValue, setInputValue] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
+  
+  const [showTerms, setShowTerms] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isAppReady, setIsAppReady] = useState(false);
+
 
   useEffect(() => {
-    // Check if the user has completed onboarding before
+    // We need to wait for the client to be ready to check localStorage
+    const termsAccepted = localStorage.getItem(TERMS_ACCEPTED_KEY);
+    if (!termsAccepted) {
+      setShowTerms(true);
+    } else {
+      setIsAppReady(true);
+      const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
+      if (!hasCompletedOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+  }, []);
+
+  const handleTermsAccepted = () => {
+    localStorage.setItem(TERMS_ACCEPTED_KEY, 'true');
+    setShowTerms(false);
+    setIsAppReady(true);
+
     const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
     if (!hasCompletedOnboarding) {
       setShowOnboarding(true);
     }
-  }, []);
+  };
 
   const handleOnboardingComplete = () => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
     setShowOnboarding(false);
   };
-
 
   const allCategories = [
     // Core & Foundational
@@ -56,7 +79,7 @@ export default function Home() {
     'Cyborg Samurai', 'Cyborg Soldier', 'Cyberspace', 'Cylinder', 'Damage', 'Danger', 'Dark', 'Dark Matter', 'Darkness', 'Dashboard',
     'Data', 'Data Stream', 'Database', 'Dawn', 'Debris', 'Decay', 'Deception', 'Deep', 'Deep Space', 'Defense', 'Delta', 'Derelict', 'Desert',
     'Desert Planet', 'Desolate', 'Destroyer', 'Destruction', 'Detail', 'Device', 'Diamond', 'Digital', 'Digital Art', 'Digital Brain',
-    'Digital City', 'Digital Frontier', 'Digital Life', 'Digital Rain', 'Digital World', 'Dimensional',
+    'Digital City', 'Digital Frontier', 'Digital Life', 'Digital Rain', 'Digital World', 
     'Diode', 'Discovery', 'Disintegration', 'Display', 'DNA', 'Dock', 'Dogfight', 'Dome', 'Doomsday', 'Doomsday Machine',
     'Droid', 'Drone', 'Dune', 'Dusk', 'Dwarf Star', 'Dynamic', 'Dystopian', 'Dyson Sphere', 'Earth', 'Echo', 'Eclipse', 'Eco-punk', 'Edge',
     'Elder', 'Electric', 'Electricity', 'Electromagnetic', 'Electronic', 'Element', 'Elite', 'Empire', 'Encounter',
@@ -124,7 +147,6 @@ export default function Home() {
     'Sub-light', 'Sub-marine', 'Substance', 'Subterranean', 'Subway', 'Sun', 'Sunken', 'Sunrise',
     'Sunset', 'Super-computer', 'Super-hero', 'Super-nova', 'Super-soldier', 'Super-structure',
     'Surface', 'Surreal', 'Survivor', 'Swamp', 'Swarm', 'Sword', 'Symbol', 'Symmetry', 'Synapse',
-
     'Synth', 'Synthwave', 'System', 'Tactical', 'Tank', 'Target', 'Tears', 'Tech', 'Techno', 'Techno-mage',
     'Technocracy', 'Technology', 'Telekinesis', 'Telepathy', 'Teleport', 'Temple', 'Terminal', 'Terraform',
     'Terraformed Planet', 'Terror', 'Tesseract', 'Test', 'Texture', 'Theory', 'Thief', 'Thorn', 'Threat',
@@ -142,7 +164,6 @@ export default function Home() {
     'Velocity', 'Venom', 'Venture', 'Verdant', 'Verse', 'Vertical', 'Vessel', 'Veteran', 'Vex', 'Vibrant',
     'Vice', 'Victim', 'Victory', 'View', 'Vigil', 'Vigilante', 'Viking', 'Village', 'Villain', 'Violet',
     'Virtual', 'Virtual Reality', 'Virtue', 'Virus', 'Vision', 'Visitor', 'Vista', 'Vitality', 'Void',
-
     'Volcanic', 'Volcanic Planet', 'Volcano', 'Volt', 'Voltage', 'Vortex', 'Voyage', 'Voyager', 'VR', 'Wall',
     'Wanderer', 'War', 'War-drone', 'War-fare', 'War-game', 'War-hammer', 'War-head', 'War-lock', 'War-lord',
     'War-machine', 'War-monger', 'War-ship', 'Warden', 'Warehouse', 'Warp', 'Warp Drive', 'Warrior', 'Wasteland',
@@ -156,7 +177,10 @@ export default function Home() {
   
   const initialCategories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic'];
 
-  const noDuplicates = useMemo(() => [...new Set(allCategories)], [allCategories]);
+  const noDuplicates = useMemo(() => {
+    const uniqueCategories = [...new Set(allCategories.map(c => c.toLowerCase()))];
+    return uniqueCategories.map(lc => allCategories.find(c => c.toLowerCase() === lc)!);
+  }, [allCategories]);
 
   const filteredCategories = useMemo(() => 
     noDuplicates.filter(c => c.toLowerCase().includes(categoryFilter.toLowerCase()))
@@ -179,84 +203,93 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+       <TermsDialog open={showTerms} onAccept={handleTermsAccepted} />
        <OnboardingDialog 
         open={showOnboarding} 
         onOpenChange={setShowOnboarding}
         onContinue={handleOnboardingComplete}
       />
+      <Header />
       <main className="flex-grow">
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8 space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="Search wallpapers..."
-                className="w-full pl-10 h-12 text-lg bg-card/50 border-2 border-primary/50 focus:border-primary transition-colors"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleSearch}
-              />
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium mr-2">Categories:</span>
-              {initialCategories.map((category) => (
-                <Badge
-                  key={category}
-                  variant={query.toLowerCase() === category.toLowerCase() ? "default" : "outline"}
-                  className="cursor-pointer text-base px-4 py-1 border-accent/50 hover:bg-accent/20 hover:text-foreground transition-colors"
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  {category}
-                </Badge>
-              ))}
-              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                <PopoverTrigger asChild>
+        {isAppReady ? (
+          <div className="container mx-auto px-4 py-8">
+            <div className="mb-8 space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="Search wallpapers..."
+                  className="w-full pl-10 h-12 text-lg bg-card/50 border-2 border-primary/50 focus:border-primary transition-colors"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleSearch}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium mr-2">Categories:</span>
+                {initialCategories.map((category) => (
                   <Badge
-                    variant="outline"
-                    className="cursor-pointer text-base px-4 py-1 border-accent/50 hover:bg-accent/20 hover:text-foreground transition-colors flex items-center gap-1"
+                    key={category}
+                    variant={query.toLowerCase() === category.toLowerCase() ? "default" : "outline"}
+                    className="cursor-pointer text-base px-4 py-1 border-accent/50 hover:bg-accent/20 hover:text-foreground transition-colors"
+                    onClick={() => handleCategoryClick(category)}
                   >
-                    <MoreHorizontal className="w-4 h-4" /> More
+                    {category}
                   </Badge>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 bg-card/90 backdrop-blur-sm border-primary/50">
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium leading-none font-headline text-primary text-glow">All Categories</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Explore all available categories.
-                      </p>
-                    </div>
-                     <Input
-                        placeholder="Filter categories..."
-                        value={categoryFilter}
-                        onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="h-9"
-                      />
-                    <ScrollArea className="h-72">
-                      <div className="flex flex-col space-y-2 pr-4">
-                        {filteredCategories.map((category) => (
-                          <Button
-                            key={category}
-                            variant={query.toLowerCase() === category.toLowerCase() ? "default" : "ghost"}
-                            className="w-full justify-start"
-                            onClick={() => handleCategoryClick(category)}
-                          >
-                            {category}
-                          </Button>
-                        ))}
+                ))}
+                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="cursor-pointer text-base px-4 py-1 border-accent/50 hover:bg-accent/20 hover:text-foreground transition-colors flex items-center gap-1"
+                    >
+                      <MoreHorizontal className="w-4 h-4" /> More
+                    </Badge>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 bg-card/90 backdrop-blur-sm border-primary/50">
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-medium leading-none font-headline text-primary text-glow">All Categories</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Explore all available categories.
+                        </p>
                       </div>
-                    </ScrollArea>
-                  </div>
-                </PopoverContent>
-              </Popover>
+                       <Input
+                          placeholder="Filter categories..."
+                          value={categoryFilter}
+                          onChange={(e) => setCategoryFilter(e.target.value)}
+                          className="h-9"
+                        />
+                      <ScrollArea className="h-72">
+                        <div className="flex flex-col space-y-2 pr-4">
+                          {filteredCategories.map((category) => (
+                            <Button
+                              key={category}
+                              variant={query.toLowerCase() === category.toLowerCase() ? "default" : "ghost"}
+                              className="w-full justify-start"
+                              onClick={() => handleCategoryClick(category)}
+                            >
+                              {category}
+                            </Button>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
+              </div>
             </div>
+            <WallpaperGrid query={query} />
           </div>
-          <WallpaperGrid query={query} />
-        </div>
+        ) : (
+          <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+            {/* You can add a spinner here if you like */}
+          </div>
+        )}
       </main>
-      <AdBanner />
+      {isAppReady && <AdBanner />}
     </div>
   );
 }
+
+    
