@@ -13,7 +13,7 @@ export default function Home() {
   const [query, setQuery] = useState('sci-fi');
   const [inputValue, setInputValue] = useState('');
 
-  const categories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic'];
+  const categories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic', 'Robots', 'Planets', 'Alien', 'Cityscape'];
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue) {
