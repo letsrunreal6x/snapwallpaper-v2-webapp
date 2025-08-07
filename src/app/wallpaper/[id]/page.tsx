@@ -11,8 +11,6 @@ import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import { Wallpaper } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// This component now fetches all wallpapers for the given query
-// to enable client-side navigation.
 export default function WallpaperPage({ params, searchParams }: { params: { id: string }, searchParams: { q: string } }) {
   const router = useRouter();
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
@@ -20,23 +18,7 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [isLoading, setIsLoading] = useState(true);
   
   const query = searchParams.q || 'sci-fi';
-
-  useEffect(() => {
-    const fetchWallpapers = async () => {
-      if (!params.id) return;
-      
-      setIsLoading(true);
-      // Fetch a larger list to make swiping more meaningful
-      const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
-      setWallpapers(fetchedWallpapers);
-      
-      const index = fetchedWallpapers.findIndex(w => w.id === params.id);
-      setCurrentIndex(index);
-      setIsLoading(false);
-    };
-
-    fetchWallpapers();
-  }, [query, params.id]);
+  const { id } = params;
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
@@ -44,6 +26,23 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
       router.push(`/wallpaper/${wallpaper.id}?q=${encodeURIComponent(query)}`);
     }
   }, [wallpapers, router, query]);
+
+  useEffect(() => {
+    const fetchWallpapers = async () => {
+      if (!id) return;
+      
+      setIsLoading(true);
+      const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
+      setWallpapers(fetchedWallpapers);
+      
+      const index = fetchedWallpapers.findIndex(w => w.id === id);
+      setCurrentIndex(index);
+      setIsLoading(false);
+    };
+
+    fetchWallpapers();
+  }, [id, query]);
+
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'left' && currentIndex < wallpapers.length - 1) {
@@ -53,13 +52,12 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
     }
   };
 
-  // Touch handling
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const minSwipeDistance = 50;
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(0); // Reset touch end
+    setTouchEnd(0);
     setTouchStart(e.targetTouches[0].clientX);
   };
 
@@ -79,7 +77,6 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
       handleSwipe('right');
     }
     
-    // Reset
     setTouchStart(0);
     setTouchEnd(0);
   };
@@ -89,6 +86,11 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
       <div className="relative w-full h-screen bg-background">
         <Skeleton className="w-full h-full" />
         <div className="absolute inset-0 bg-black/30" />
+         <Button asChild variant="ghost" size="icon" className="absolute top-5 left-5 z-20 h-12 w-12 bg-black/30 hover:bg-black/50 text-white hover:text-primary">
+            <Link href="/">
+              <ArrowLeft className="h-6 w-6" />
+            </Link>
+        </Button>
       </div>
     );
   }
@@ -126,7 +128,6 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
         </Link>
       </Button>
 
-       {/* Prev/Next buttons for non-touch devices */}
       <Button 
         variant="ghost" size="icon" 
         className="absolute top-1/2 left-2 -translate-y-1/2 z-20 h-14 w-14 bg-black/30 hover:bg-black/50 text-white hover:text-primary disabled:opacity-20 disabled:cursor-not-allowed hidden md:flex"
