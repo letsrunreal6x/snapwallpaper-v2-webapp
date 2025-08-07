@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Star, Zap, CheckCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export function PremiumDialog() {
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -49,7 +50,7 @@ export function PremiumDialog() {
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
-          <Star className="h-5 w-5 text-yellow-400 hover:text-yellow-300 transition-all animate-pulse-yellow" />
+          <Star className={cn("h-5 w-5 text-yellow-400 hover:text-yellow-300 transition-all", "animate-pulse-glow")} />
           <span className="sr-only">Go Premium</span>
         </Button>
       </DialogTrigger>
