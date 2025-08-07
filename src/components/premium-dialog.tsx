@@ -49,7 +49,7 @@ export function PremiumDialog() {
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
-          <Star className="h-5 w-5 text-yellow-400 hover:text-yellow-300 transition-all" />
+          <Star className="h-5 w-5 text-yellow-400 hover:text-yellow-300 transition-all animate-pulse-yellow" />
           <span className="sr-only">Go Premium</span>
         </Button>
       </DialogTrigger>

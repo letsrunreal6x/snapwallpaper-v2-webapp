@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -94,13 +95,24 @@ export default {
         'fade-in': {
           '0%': { opacity: '0.5' },
           '100%': { opacity: '1' },
-        }
+        },
+        'pulse-yellow': {
+          '0%, 100%': {
+            textShadow: '0 0 5px #facc15, 0 0 10px #facc15, 0 0 15px #facc15',
+            filter: 'drop-shadow(0 0 3px #fde047)',
+          },
+          '50%': {
+             textShadow: 'none',
+             filter: 'none',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         flicker: 'flicker 2s linear infinite alternate',
         'fade-in': 'fade-in 0.5s ease-in-out',
+        'pulse-yellow': 'pulse-yellow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
