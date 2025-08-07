@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { Download, Heart, Share2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DownloadDialog } from '@/components/download-dialog';
@@ -17,12 +17,11 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentQuery, setCurrentQuery] = useState('sci-fi');
+  const [currentQuery, setCurrentQuery] = useState('');
   const { toggleFavorite, isFavorite } = useFavorites();
   
   useEffect(() => {
     const fetchWallpapers = async () => {
-      // Access params and searchParams inside the effect
       const id = params.id;
       const query = searchParams.q || 'sci-fi';
       
