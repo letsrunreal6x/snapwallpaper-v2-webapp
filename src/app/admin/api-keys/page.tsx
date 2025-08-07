@@ -5,14 +5,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { KeyRound, PlusCircle, RotateCw } from "lucide-react";
 
-const apiServices = [
-    { name: 'Pexels', key: 'PEX...-....-....-....-....', status: 'Active', expires: '30 days' },
-    { name: 'Pixabay', key: 'PIX...-....-....-....-....', status: 'Active', expires: '85 days' },
-    { name: 'Unsplash', key: 'UNS...-....-....-....-....', status: 'Rotating', expires: '2 hours' },
-    { name: 'NASA', key: 'NAS...-....-....-....-....', status: 'Active', expires: 'N/A' },
+const getApiServices = () => [
+    { name: 'Pexels', key: process.env.PEXELS_API_KEY, status: 'Active', expires: 'N/A' },
+    { name: 'Pixabay', key: process.env.PIXABAY_API_KEY, status: 'Active', expires: 'N/A' },
+    { name: 'Unsplash', key: process.env.UNSPLASH_ACCESS_KEY, status: 'Active', expires: 'N/A' },
+    { name: 'NASA', key: process.env.NASA_API_KEY, status: 'Active', expires: 'N/A' },
 ];
 
+const maskKey = (key?: string) => {
+    if (!key) return 'Not Configured';
+    return `${key.slice(0, 3)}...${key.slice(-4)}`;
+}
+
 export default function ApiKeysPage() {
+    const apiServices = getApiServices();
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -26,7 +32,7 @@ export default function ApiKeysPage() {
                                     API Key Management
                                 </CardTitle>
                                 <CardDescription className="mt-2">
-                                    Manage and rotate API keys to prevent service disruption.
+                                    Manage and rotate API keys to prevent service disruption. API keys are stored in environment variables.
                                 </CardDescription>
                             </div>
                             <Button className="gap-2">
@@ -51,15 +57,15 @@ export default function ApiKeysPage() {
                                 {apiServices.map((api) => (
                                     <TableRow key={api.name}>
                                         <TableCell className="font-medium">{api.name}</TableCell>
-                                        <TableCell className="font-code text-muted-foreground">{api.key}</TableCell>
+                                        <TableCell className="font-code text-muted-foreground">{maskKey(api.key)}</TableCell>
                                         <TableCell>
-                                            <Badge variant={api.status === 'Active' ? 'default' : 'secondary'} className={api.status === 'Active' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30 animate-pulse'}>
-                                                {api.status}
+                                            <Badge variant={api.key ? 'default' : 'destructive'} className={api.key ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}>
+                                                {api.key ? 'Active' : 'Inactive'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>{api.expires}</TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon">
+                                            <Button variant="ghost" size="icon" disabled={!api.key}>
                                                 <RotateCw className="w-4 h-4 text-accent hover:text-primary transition-colors" />
                                                 <span className="sr-only">Rotate Key</span>
                                             </Button>

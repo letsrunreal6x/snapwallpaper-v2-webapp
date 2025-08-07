@@ -4,60 +4,53 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Wallpaper } from '@/lib/definitions';
 import { WallpaperCard } from './wallpaper-card';
 import { Skeleton } from './ui/skeleton';
-
-const sources = [
-  { source: "Pexels", hint: "neon city" },
-  { source: "Pixabay", hint: "cyberpunk art" },
-  { source: "Unsplash", hint: "galaxy stars" },
-  { source: "NASA", hint: "earth space" },
-  { source: "Pexels", hint: "abstract technology" },
-  { source: "Pixabay", hint: "sci-fi robot" },
-  { source: "Unsplash", hint: "futuristic car" },
-  { source: "NASA", hint: "mars rover" },
-  { source: "Pexels", hint: "glitch effect" },
-  { source: "Pixabay", hint: "hacker code" },
-  { source: "Unsplash", hint: "virtual reality" },
-  { source: "NASA", hint: "hubble telescope" },
-];
-
-const generateWallpaper = (id: number): Wallpaper => {
-  const sourceInfo = sources[id % sources.length];
-  return {
-    id: `wallpaper-${id}`,
-    url: 'https://placehold.co/1080x1920.png',
-    previewUrl: 'https://placehold.co/400x600.png',
-    author: 'AI Artist',
-    authorUrl: '#',
-    source: sourceInfo.source,
-    tags: [sourceInfo.hint.split(" ")[0], sourceInfo.hint.split(" ")[1]],
-    aiHint: sourceInfo.hint,
-  };
-};
+import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 
 export function WallpaperGrid() {
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
+  const [currentQuery, setCurrentQuery] = useState('sci-fi');
 
   const loadMoreWallpapers = useCallback(async () => {
+    if (isLoading || !hasMore) return;
     setIsLoading(true);
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const newWallpapers: Wallpaper[] = [];
-    const startIndex = (page - 1) * 12;
-    for (let i = 0; i < 12; i++) {
-      newWallpapers.push(generateWallpaper(startIndex + i));
+    try {
+      const newWallpapers = await getWallpapers({ query: currentQuery, page, per_page: 12 });
+      if (newWallpapers.length === 0) {
+        setHasMore(false);
+      } else {
+        setWallpapers((prev) => [...prev, ...newWallpapers]);
+        setPage((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Failed to load wallpapers:", error);
+      // Optionally, handle the error in the UI
+    } finally {
+      setIsLoading(false);
     }
-    setWallpapers((prev) => [...prev, ...newWallpapers]);
-    setPage((prev) => prev + 1);
-    setIsLoading(false);
-  }, [page]);
+  }, [page, isLoading, hasMore, currentQuery]);
+
+  useEffect(() => {
+    // Reset and load wallpapers when query changes
+    setWallpapers([]);
+    setPage(1);
+    setHasMore(true);
+  }, [currentQuery]);
+
+   useEffect(() => {
+    if (page === 1 && hasMore) {
+       loadMoreWallpapers();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, hasMore]); // Only re-run when page or hasMore changes.
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
           loadMoreWallpapers();
         }
       },
@@ -74,7 +67,7 @@ export function WallpaperGrid() {
         observer.unobserve(currentLoader);
       }
     };
-  }, [loadMoreWallpapers, isLoading]);
+  }, [loadMoreWallpapers, isLoading, hasMore]);
   
   return (
     <div>
@@ -83,7 +76,7 @@ export function WallpaperGrid() {
           <WallpaperCard key={wallpaper.id} wallpaper={wallpaper} />
         ))}
       </div>
-      <div ref={loaderRef} className="col-span-full">
+      <div ref={loaderRef} className="col-span-full h-20">
         {isLoading && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4">
             {Array.from({ length: 5 }).map((_, index) => (
@@ -94,6 +87,11 @@ export function WallpaperGrid() {
           </div>
         )}
       </div>
+      {!isLoading && !hasMore && (
+        <div className="text-center col-span-full py-8 text-muted-foreground">
+            <p>You've reached the end of the galaxy.</p>
+        </div>
+      )}
     </div>
   );
 }

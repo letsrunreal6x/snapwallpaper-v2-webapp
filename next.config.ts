@@ -16,6 +16,26 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pixabay.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'apod.nasa.gov',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.nasa.gov',
+      }
     ],
   },
 };

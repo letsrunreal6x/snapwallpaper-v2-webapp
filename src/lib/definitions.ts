@@ -7,4 +7,6 @@ export type Wallpaper = {
   source: string;
   tags: string[];
   aiHint: string;
+  width: number;
+  height: number;
 };
