@@ -10,6 +10,7 @@ import { DownloadDialog } from '@/components/download-dialog';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import type { Wallpaper } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useFavorites } from '@/hooks/use-favorites';
 
 export default function WallpaperPage({ params, searchParams }: { params: { id: string }, searchParams: { q: string } }) {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuery, setCurrentQuery] = useState('sci-fi');
+  const { toggleFavorite, isFavorite } = useFavorites();
+
 
   useEffect(() => {
     const fetchWallpapers = async () => {
@@ -115,6 +118,8 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
           </div>
       )
   }
+  
+  const isCurrentlyFavorite = isFavorite(wallpaper.id);
 
   return (
     <div className="relative w-full h-screen" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
@@ -167,8 +172,13 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
               <Button variant="ghost" size="icon" className="text-white hover:text-primary hover:bg-white/10 rounded-full h-12 w-12">
                 <Share2 className="w-6 h-6" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-white hover:text-secondary hover:bg-white/10 rounded-full h-12 w-12">
-                <Heart className="w-6 h-6" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white hover:text-secondary hover:bg-white/10 rounded-full h-12 w-12"
+                onClick={() => toggleFavorite({ ...wallpaper, query: currentQuery })}
+              >
+                <Heart className={`w-6 h-6 transition-colors ${isCurrentlyFavorite ? 'text-secondary fill-secondary' : 'text-white'}`} />
               </Button>
             </div>
 

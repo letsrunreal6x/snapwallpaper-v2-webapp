@@ -1,5 +1,6 @@
+
 import Link from 'next/link';
-import { Wrench } from 'lucide-react';
+import { Wrench, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 
 export default function Header() {
@@ -11,7 +12,13 @@ export default function Header() {
             AstroWalls
           </span>
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/favorites">
+              <Heart className="h-5 w-5 text-secondary hover:text-glow-secondary transition-all" />
+              <span className="sr-only">Favorites</span>
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/api-keys">
               <Wrench className="h-5 w-5 text-primary hover:text-glow transition-all" />
