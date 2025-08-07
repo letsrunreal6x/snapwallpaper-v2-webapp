@@ -23,19 +23,20 @@ export default function WallpaperPage({ params, searchParams }: { params: { id: 
 
   useEffect(() => {
     const fetchWallpapers = async () => {
-      const { id } = params;
-      if (!id) return;
+      if (!params.id) return;
+      
       setIsLoading(true);
       // Fetch a larger list to make swiping more meaningful
       const fetchedWallpapers = await getWallpapers({ query, page: 1, per_page: 50 });
       setWallpapers(fetchedWallpapers);
-      const index = fetchedWallpapers.findIndex(w => w.id === id);
+      
+      const index = fetchedWallpapers.findIndex(w => w.id === params.id);
       setCurrentIndex(index);
       setIsLoading(false);
     };
 
     fetchWallpapers();
-  }, [query, params]);
+  }, [query, params.id]);
 
   const navigateToWallpaper = useCallback((index: number) => {
     if (index >= 0 && index < wallpapers.length) {
