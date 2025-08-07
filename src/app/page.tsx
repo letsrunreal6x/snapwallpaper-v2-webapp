@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import AdBanner from '@/components/ad-banner';
 import Header from '@/components/header';
 import { WallpaperGrid } from '@/components/wallpaper-grid';
@@ -11,12 +11,30 @@ import { Search, MoreHorizontal } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import { OnboardingDialog } from '@/components/onboarding-dialog';
+
+const ONBOARDING_KEY = 'snapwallpaper_onboarding_complete';
 
 export default function Home() {
   const [query, setQuery] = useState('sci-fi');
   const [inputValue, setInputValue] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    // Check if the user has completed onboarding before
+    const hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY);
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+    setShowOnboarding(false);
+  };
+
 
   const allCategories = [
     // Core & Foundational
@@ -38,7 +56,7 @@ export default function Home() {
     'Cyborg Samurai', 'Cyborg Soldier', 'Cyberspace', 'Cylinder', 'Damage', 'Danger', 'Dark', 'Dark Matter', 'Darkness', 'Dashboard',
     'Data', 'Data Stream', 'Database', 'Dawn', 'Debris', 'Decay', 'Deception', 'Deep', 'Deep Space', 'Defense', 'Delta', 'Derelict', 'Desert',
     'Desert Planet', 'Desolate', 'Destroyer', 'Destruction', 'Detail', 'Device', 'Diamond', 'Digital', 'Digital Art', 'Digital Brain',
-    'Digital City', 'Digital Frontier', 'Digital Life', 'Digital Rain', 'Digital World', 'Dimension', 'Dimensional',
+    'Digital City', 'Digital Frontier', 'Digital Life', 'Digital Rain', 'Digital World', 'Dimensional',
     'Diode', 'Discovery', 'Disintegration', 'Display', 'DNA', 'Dock', 'Dogfight', 'Dome', 'Doomsday', 'Doomsday Machine',
     'Droid', 'Drone', 'Dune', 'Dusk', 'Dwarf Star', 'Dynamic', 'Dystopian', 'Dyson Sphere', 'Earth', 'Echo', 'Eclipse', 'Eco-punk', 'Edge',
     'Elder', 'Electric', 'Electricity', 'Electromagnetic', 'Electronic', 'Element', 'Elite', 'Empire', 'Encounter',
@@ -138,10 +156,12 @@ export default function Home() {
   
   const initialCategories = ['Cyberpunk', 'Space', 'NASA', 'Abstract', 'Neon', 'Glitch', 'Futuristic'];
 
+  const noDuplicates = useMemo(() => [...new Set(allCategories)], [allCategories]);
+
   const filteredCategories = useMemo(() => 
-    allCategories.filter(c => c.toLowerCase().includes(categoryFilter.toLowerCase()))
+    noDuplicates.filter(c => c.toLowerCase().includes(categoryFilter.toLowerCase()))
     .sort()
-    , [categoryFilter]
+    , [categoryFilter, noDuplicates]
   );
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -160,6 +180,11 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+       <OnboardingDialog 
+        open={showOnboarding} 
+        onOpenChange={setShowOnboarding}
+        onContinue={handleOnboardingComplete}
+      />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8 space-y-4">
