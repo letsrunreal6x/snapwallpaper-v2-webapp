@@ -9,6 +9,7 @@ import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import { InGridAdCard } from './in-grid-ad-card';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { WallpaperFeed } from './wallpaper-feed';
 
 const AD_FREQUENCY = 4; // Show an ad every 4 items
 
@@ -148,7 +149,7 @@ export function WallpaperGrid({ query, reshuffleTrigger, viewMode }: WallpaperGr
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isFetchingRef.current && hasMore) {
+        if (entries[0].isIntersecting && !isFetchingRef.current && hasMore && viewMode === 'grid') {
           loadMoreWallpapers();
         }
       },
@@ -165,29 +166,38 @@ export function WallpaperGrid({ query, reshuffleTrigger, viewMode }: WallpaperGr
         observer.unobserve(currentLoader);
       }
     };
-  }, [loadMoreWallpapers, hasMore]);
+  }, [loadMoreWallpapers, hasMore, viewMode]);
   
+  const loadNextPage = () => {
+    if (!isFetchingRef.current && hasMore) {
+        loadMoreWallpapers();
+    }
+  };
+
   return (
     <div>
-      <div className={cn(
-        'gap-4',
-        {
-          'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5': viewMode === 'grid',
-          'flex flex-col items-center gap-8': viewMode === 'feed',
-        }
-      )}>
-        {items.map((item, index) => (
-           ('isAd' in item) 
-             ? <InGridAdCard key={`ad-${index}`} />
-             : <WallpaperCard key={`${item.id}-${item.query}-${index}`} wallpaper={item} query={query} viewMode={viewMode} />
-        ))}
-        {isLoading && (
-            viewMode === 'grid' 
-            ? Array.from({ length: 12 }).map((_, index) => <Skeleton key={`skeleton-${index}`} className="w-full aspect-[2/3] rounded-lg" />)
-            : Array.from({ length: 3 }).map((_, index) => <Skeleton key={`skeleton-${index}`} className="w-full max-w-lg aspect-[2/3] rounded-lg" />)
+        {viewMode === 'feed' ? (
+            <WallpaperFeed 
+                items={items} 
+                isLoading={isLoading} 
+                query={query} 
+                loadNextPage={loadNextPage}
+                hasMore={hasMore}
+            />
+        ) : (
+            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
+                {items.map((item, index) => (
+                   ('isAd' in item) 
+                     ? <InGridAdCard key={`ad-${index}`} />
+                     : <WallpaperCard key={`${item.id}-${item.query}-${index}`} wallpaper={item} query={query} viewMode={viewMode} />
+                ))}
+                {isLoading && (
+                    Array.from({ length: 12 }).map((_, index) => <Skeleton key={`skeleton-${index}`} className="w-full aspect-[2/3] rounded-lg" />)
+                )}
+            </div>
         )}
-      </div>
-      <div ref={loaderRef} className="h-20" />
+      
+      {viewMode === 'grid' && <div ref={loaderRef} className="h-20" />}
       
       {!isLoading && !hasMore && items.length > 0 && (
         <div className="text-center py-8 text-muted-foreground">

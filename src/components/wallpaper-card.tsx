@@ -11,10 +11,11 @@ interface WallpaperCardProps {
   wallpaper: Wallpaper;
   query: string;
   viewMode: 'grid' | 'feed';
+  style?: React.CSSProperties;
 }
 
 
-function WallpaperCardComponent({ wallpaper, query, viewMode }: WallpaperCardProps) {
+function WallpaperCardComponent({ wallpaper, query, viewMode, style }: WallpaperCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const isCurrentlyFavorite = isFavorite(wallpaper.id);
 
@@ -26,9 +27,11 @@ function WallpaperCardComponent({ wallpaper, query, viewMode }: WallpaperCardPro
 
   return (
     <div 
+      style={style}
       className={cn(
-        "group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300",
-        viewMode === 'feed' && "max-w-lg"
+        "group relative block w-full overflow-hidden rounded-lg bg-card border border-transparent transition-all duration-300",
+        viewMode === 'grid' && "aspect-[2/3] hover:border-primary",
+        viewMode === 'feed' && "h-full"
       )}
     >
         <Image
@@ -36,8 +39,12 @@ function WallpaperCardComponent({ wallpaper, query, viewMode }: WallpaperCardPro
           alt={wallpaper.aiHint || `Wallpaper by ${wallpaper.author}`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+          className={cn(
+            "object-cover",
+            viewMode === 'grid' && 'transition-transform duration-300 ease-in-out group-hover:scale-110'
+          )}
           data-ai-hint={wallpaper.aiHint}
+          priority={viewMode === 'feed'}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
         
