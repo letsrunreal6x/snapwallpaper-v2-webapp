@@ -6,11 +6,22 @@ import { WallpaperCard } from '@/components/wallpaper-card';
 import { useFavorites } from '@/hooks/use-favorites';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { HeartCrack, Loader2 } from 'lucide-react';
+import { HeartCrack, Loader2, Trash2 } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function FavoritesPage() {
-  const { favorites, isInitialized } = useFavorites();
+  const { favorites, isInitialized, clearFavorites } = useFavorites();
 
   if (!isInitialized) {
     return (
@@ -27,14 +38,42 @@ export default function FavoritesPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="font-headline text-3xl text-glow mb-8">Your Favorite Wallpapers</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="font-headline text-3xl text-glow">Your Favorite Wallpapers</h1>
+          {favorites.length > 0 && (
+             <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear All
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all
+                    your favorite wallpapers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearFavorites}>
+                    Yes, delete everything
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
         {favorites.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
              {favorites.map((wallpaper: Wallpaper) => (
                 <WallpaperCard 
                     key={wallpaper.id}
                     wallpaper={wallpaper} 
-                    query={wallpaper.query || 'favorites'} 
+                    query={wallpaper.query || 'favorites'}
+                    viewMode="grid"
                 />
             ))}
           </div>
