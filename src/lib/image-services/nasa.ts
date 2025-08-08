@@ -1,3 +1,4 @@
+
 'use server';
 import type { Wallpaper } from '@/lib/definitions';
 
@@ -29,7 +30,7 @@ export async function search({ per_page }: { query: string; page: number; per_pa
     const data: ApodEntry[] = await response.json();
 
     return data
-        .filter(item => item.media_type === 'image')
+        .filter(item => item.media_type === 'image' && item.hdurl)
         .map(item => ({
             id: `nasa-${item.date}`,
             url: item.hdurl,
