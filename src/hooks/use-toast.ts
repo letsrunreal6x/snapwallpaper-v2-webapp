@@ -1,7 +1,10 @@
+
 "use client"
 
 // Inspired by react-hot-toast library
 import * as React from "react"
+import { Capacitor } from '@capacitor/core';
+
 
 import type {
   ToastActionElement,
@@ -173,8 +176,12 @@ function toast({ ...props }: Toast) {
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
+  const [isReady, setIsReady] = React.useState(false);
 
   React.useEffect(() => {
+    // This hook should only run on the client
+    setIsReady(true);
+
     listeners.push(setState)
     return () => {
       const index = listeners.indexOf(setState)
@@ -183,6 +190,20 @@ function useToast() {
       }
     }
   }, [state])
+  
+  // Conditionally render the toast provider based on platform
+  if (!isReady || !Capacitor.isBrowser) {
+    return {
+      ...state,
+      toasts: [], // Return empty toasts on native or during SSR
+      toast: () => {
+        console.log("Toast called on native. Implement native toast.");
+        return { id: '', dismiss: () => {}, update: () => {} };
+      },
+      dismiss: () => {}
+    };
+  }
+
 
   return {
     ...state,
