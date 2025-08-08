@@ -156,22 +156,22 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   
   return (
     <div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="flex flex-col items-center gap-8">
         {items.map((item, index) => (
            ('isAd' in item) 
              ? <InGridAdCard key={`ad-${index}`} />
              : <WallpaperCard key={`${item.id}-${item.query}-${index}`} wallpaper={item} query={query} />
         ))}
-        {isLoading && Array.from({ length: 5 }).map((_, index) => (
-            <div key={`skeleton-${index}`} className="aspect-[2/3] w-full">
-                <Skeleton className="w-full h-full rounded-lg" />
+        {isLoading && Array.from({ length: 3 }).map((_, index) => (
+            <div key={`skeleton-${index}`} className="w-full max-w-lg">
+                <Skeleton className="w-full aspect-[2/3] rounded-lg" />
             </div>
         ))}
       </div>
-      <div ref={loaderRef} className="col-span-full h-20" />
+      <div ref={loaderRef} className="h-20" />
       
       {!isLoading && !hasMore && items.length > 0 && (
-        <div className="text-center col-span-full py-8 text-muted-foreground">
+        <div className="text-center py-8 text-muted-foreground">
             <p>You've reached the end of the galaxy.</p>
         </div>
       )}

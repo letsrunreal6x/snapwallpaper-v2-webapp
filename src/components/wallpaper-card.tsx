@@ -24,13 +24,13 @@ function WallpaperCardComponent({ wallpaper, query }: WallpaperCardProps) {
 
   return (
     <div 
-      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300"
+      className="group relative block aspect-[2/3] w-full max-w-lg overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300"
     >
         <Image
           src={wallpaper.previewUrl}
           alt={wallpaper.aiHint || `Wallpaper by ${wallpaper.author}`}
           fill
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
           data-ai-hint={wallpaper.aiHint}
         />
