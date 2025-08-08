@@ -42,7 +42,7 @@ function WallpaperCardComponent({ wallpaper, query, onWallpaperSelect }: Wallpap
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
         
-        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center transition-opacity duration-300">
             <div onClick={(e) => e.stopPropagation()}><DownloadDialog wallpaperUrl={wallpaper.url} wallpaperId={wallpaper.id} /></div>
             <button 
                 className="text-white bg-black/50 backdrop-blur-sm rounded-full h-12 w-12 hover:bg-black/70 hover:text-secondary flex items-center justify-center transition-all"
