@@ -98,8 +98,7 @@ export function PremiumDialog() {
                     <Button variant="outline">Maybe Later</Button>
                 </DialogClose>
                 <Button onClick={handlePurchase} disabled={isPurchasing}>
-                    {isPurchasing && <Loader2 className="animate-spin" />}
-                    Upgrade Now
+                    {isPurchasing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Upgrade Now'}
                 </Button>
             </>
           )}

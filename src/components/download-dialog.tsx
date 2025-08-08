@@ -33,7 +33,6 @@ export function DownloadDialog({ wallpaperUrl, wallpaperId }: DownloadDialogProp
   const triggerDownload = async () => {
     setIsDownloading(true);
     try {
-      // Use a CORS proxy if direct fetch fails, but for now we try direct.
       const response = await fetch(wallpaperUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch wallpaper: ${response.statusText}`);
@@ -53,7 +52,7 @@ export function DownloadDialog({ wallpaperUrl, wallpaperId }: DownloadDialogProp
       toast({
         variant: 'destructive',
         title: 'Download Failed',
-        description: 'Could not download the wallpaper. Please try again later.',
+        description: 'Could not download the wallpaper. The file might be unavailable. Please try again later.',
       });
     } finally {
       setIsDownloading(false);

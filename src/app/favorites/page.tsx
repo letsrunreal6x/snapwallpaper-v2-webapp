@@ -9,27 +9,47 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
+import { WallpaperViewer } from '@/components/wallpaper-viewer';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
   const [favoriteWallpapers, setFavoriteWallpapers] = useState<Wallpaper[]>([]);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedWallpaperIndex, setSelectedWallpaperIndex] = useState(0);
 
   useEffect(() => {
-    setFavoriteWallpapers(favorites);
+    // Deduplicate favorites in case of any data inconsistency
+    const uniqueFavorites = Array.from(new Map(favorites.map(item => [item.id, item])).values());
+    setFavoriteWallpapers(uniqueFavorites);
   }, [favorites]);
+
+  const handleWallpaperSelect = (selectedWallpaper: Wallpaper) => {
+    const index = favoriteWallpapers.findIndex(w => w.id === selectedWallpaper.id);
+    if (index !== -1) {
+      setSelectedWallpaperIndex(index);
+      setViewerOpen(true);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+      <WallpaperViewer 
+        open={viewerOpen}
+        onOpenChange={setViewerOpen}
+        wallpapers={favoriteWallpapers}
+        startIndex={selectedWallpaperIndex}
+      />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="font-headline text-3xl text-glow mb-8">Your Favorite Wallpapers</h1>
         {favoriteWallpapers.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-             {favoriteWallpapers.map((wallpaper, index) => (
+             {favoriteWallpapers.map((wallpaper) => (
                 <WallpaperCard 
-                    key={`${wallpaper.id}-${index}`} 
+                    key={wallpaper.id}
                     wallpaper={wallpaper} 
                     query={wallpaper.query || 'favorites'} 
+                    onWallpaperSelect={handleWallpaperSelect}
                 />
             ))}
           </div>

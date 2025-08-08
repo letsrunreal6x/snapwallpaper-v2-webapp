@@ -97,7 +97,7 @@ export default {
           '100%': { opacity: '1' },
         },
         'pulse-glow': {
-          '0%, 100%': { filter: 'drop-shadow(0 0 3px #fde047)' },
+          '0%, 100%': { filter: 'drop-shadow(0 0 3px hsl(var(--primary)))' },
           '50%': { filter: 'none' },
         },
       },

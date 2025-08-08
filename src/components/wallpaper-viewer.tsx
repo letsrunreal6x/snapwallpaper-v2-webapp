@@ -3,10 +3,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import type { EmblaCarouselType } from 'embla-carousel-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { X, Heart, Loader2 } from 'lucide-react';
+import { X, Heart } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
 import { useFavorites } from '@/hooks/use-favorites';
 import { DownloadDialog } from './download-dialog';
@@ -50,7 +49,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
     }
   }, [emblaApi, onSelect]);
 
-  if (!open) return null;
+  if (!open || wallpapers.length === 0) return null;
 
   const currentWallpaper = wallpapers[currentIndex];
 
@@ -59,12 +58,14 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
       <DialogContent className="p-0 m-0 bg-black/80 backdrop-blur-sm border-none w-full h-full max-w-full max-h-screen rounded-none flex flex-col">
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent">
-          <div className="flex flex-col">
-            <h3 className="font-bold text-white text-lg drop-shadow-lg">{currentWallpaper?.aiHint || `Wallpaper`}</h3>
-             <Link href={currentWallpaper?.authorUrl || '#'} target="_blank" rel="noopener noreferrer" className="text-sm text-white/80 hover:underline drop-shadow-lg">
-                by {currentWallpaper?.author || 'Unknown'} on {currentWallpaper?.source || 'Unknown'}
-            </Link>
-          </div>
+          {currentWallpaper && (
+            <div className="flex flex-col">
+              <h3 className="font-bold text-white text-lg drop-shadow-lg">{currentWallpaper.aiHint || `Wallpaper`}</h3>
+              <a href={currentWallpaper.authorUrl || '#'} target="_blank" rel="noopener noreferrer" className="text-sm text-white/80 hover:underline drop-shadow-lg">
+                  by {currentWallpaper.author || 'Unknown'} on {currentWallpaper.source || 'Unknown'}
+              </a>
+            </div>
+          )}
           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white" onClick={() => onOpenChange(false)}>
             <X className="h-6 w-6" />
             <span className="sr-only">Close</span>
@@ -95,7 +96,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
         <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center items-center p-4 gap-4 bg-gradient-to-t from-black/50 to-transparent">
             {currentWallpaper && (
                 <>
-                <DownloadDialog wallpaperUrl={currentWallpaper.url} wallpaperId={currentWallpaper.id} />
+                <div onClick={(e) => e.stopPropagation()}><DownloadDialog wallpaperUrl={currentWallpaper.url} wallpaperId={currentWallpaper.id} /></div>
                 <Button 
                     variant="ghost" 
                     size="icon" 
