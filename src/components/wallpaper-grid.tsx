@@ -40,6 +40,8 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
   const currentQueryRef = useRef(query);
+  const isFetchingRef = useRef(false);
+  const initialLoadRef = useRef(false);
 
   // State for the viewer
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -55,9 +57,14 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
     }
   };
 
+  const handleIndexChange = (index: number) => {
+    setSelectedWallpaperIndex(index);
+  };
+
   const loadMoreWallpapers = useCallback(async (isNewQuery = false) => {
-    if (isLoading || (!hasMore && !isNewQuery)) return;
+    if (isFetchingRef.current || (!hasMore && !isNewQuery)) return;
     
+    isFetchingRef.current = true;
     setIsLoading(true);
 
     const loadPage = isNewQuery ? 1 : page;
@@ -80,11 +87,13 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
       console.error("Failed to load wallpapers:", error);
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
-  }, [page, isLoading, hasMore, query]);
+  }, [page, hasMore, query]);
 
   const handleReshuffle = useCallback(async () => {
-    if (isLoading) return;
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setIsLoading(true);
 
     try {
@@ -107,8 +116,9 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
       console.error("Failed to reshuffle:", error);
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
-  }, [items, isLoading, query, page, loadMoreWallpapers]);
+  }, [items, query, page, loadMoreWallpapers]);
 
   useEffect(() => {
     if (reshuffleTrigger > 0) {
@@ -123,6 +133,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
         setItems([]);
         setPage(1);
         setHasMore(true);
+        initialLoadRef.current = false; // Reset initial load flag
         window.scrollTo(0, 0);
         // Use a timeout to allow state to clear before fetching
         setTimeout(() => loadMoreWallpapers(true), 0);
@@ -131,17 +142,16 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
 
    // Effect to load initial data
    useEffect(() => {
-    if (items.length === 0 && hasMore && query) {
-       loadMoreWallpapers(true);
+    if (!initialLoadRef.current && items.length === 0 && hasMore && query) {
+        initialLoadRef.current = true;
+        loadMoreWallpapers(true);
     }
-    // We only want this to run once on initial load or if query was cleared then re-populated.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [query, items.length, hasMore, loadMoreWallpapers]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoading && hasMore) {
+        if (entries[0].isIntersecting && !isFetchingRef.current && hasMore) {
           loadMoreWallpapers();
         }
       },
@@ -158,7 +168,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
         observer.unobserve(currentLoader);
       }
     };
-  }, [loadMoreWallpapers, isLoading, hasMore]);
+  }, [loadMoreWallpapers, hasMore]);
   
   return (
     <div>
@@ -167,7 +177,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
             onOpenChange={setViewerOpen}
             wallpapers={wallpapersOnly}
             startIndex={selectedWallpaperIndex}
-            onIndexChange={setSelectedWallpaperIndex}
+            onIndexChange={handleIndexChange}
         />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {items.map((item, index) => (

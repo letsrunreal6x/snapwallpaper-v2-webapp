@@ -30,6 +30,10 @@ export default function FavoritesPage() {
       setViewerOpen(true);
     }
   };
+  
+  const handleIndexChange = (index: number) => {
+    setSelectedWallpaperIndex(index);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -39,6 +43,7 @@ export default function FavoritesPage() {
         onOpenChange={setViewerOpen}
         wallpapers={favoriteWallpapers}
         startIndex={selectedWallpaperIndex}
+        onIndexChange={handleIndexChange}
       />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="font-headline text-3xl text-glow mb-8">Your Favorite Wallpapers</h1>

@@ -21,7 +21,7 @@ interface WallpaperViewerProps {
   onIndexChange: (index: number) => void;
 }
 
-function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwipeDown: () => void }) {
+function ZoomableImage({ wallpaper, onSwipeDown, priority }: { wallpaper: Wallpaper, onSwipeDown: () => void, priority: boolean }) {
   const target = React.useRef(null);
   const {
     x,
@@ -33,7 +33,7 @@ function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwi
     minScale: 1,
     maxScale: 4,
     onSwipe: (event) => {
-        if (event.direction === 'down' && event.distance > 80) {
+        if (event.direction === 'down' && event.distance > 80 && scale === 1) {
             onSwipeDown();
         }
     }
@@ -59,6 +59,7 @@ function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwi
         src={wallpaper.url}
         alt={wallpaper.aiHint || `Wallpaper by ${wallpaper.author}`}
         fill
+        sizes="100vw"
         className={cn("object-contain transition-transform duration-300 ease-in-out", isPanning ? 'cursor-grabbing' : 'cursor-grab')}
         style={{
           transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
@@ -66,7 +67,7 @@ function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwi
           touchAction: 'none',
         }}
         draggable={false}
-        priority={true}
+        priority={priority}
       />
     </div>
   );
@@ -80,18 +81,22 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
     align: 'center',
   });
   const { toggleFavorite, isFavorite } = useFavorites();
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
 
   useEffect(() => {
-    if (open && emblaApi) {
-        if (emblaApi.selectedScrollSnap() !== startIndex) {
+    if (emblaApi) {
+        if (open && emblaApi.selectedScrollSnap() !== startIndex) {
             emblaApi.scrollTo(startIndex, true);
         }
+        setCurrentIndex(emblaApi.selectedScrollSnap());
     }
   }, [open, startIndex, emblaApi]);
 
   const onSelect = useCallback(() => {
     if (emblaApi) {
-      onIndexChange(emblaApi.selectedScrollSnap());
+      const newIndex = emblaApi.selectedScrollSnap();
+      setCurrentIndex(newIndex);
+      onIndexChange(newIndex);
     }
   }, [emblaApi, onIndexChange]);
 
@@ -106,7 +111,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
 
   if (!open || wallpapers.length === 0) return null;
 
-  const currentWallpaper = wallpapers[startIndex];
+  const currentWallpaper = wallpapers[currentIndex];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -136,8 +141,8 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
             {wallpapers.map((wallpaper, index) => (
               <div key={`${wallpaper.id}-${index}`} className="embla__slide flex items-center justify-center h-full relative p-4">
                  {/* Only render the ZoomableImage for visible slides to optimize performance */}
-                 {(index >= startIndex - 1 && index <= startIndex + 1) ? (
-                   <ZoomableImage wallpaper={wallpaper} onSwipeDown={handleClose} />
+                 {(index >= currentIndex - 1 && index <= currentIndex + 1) ? (
+                   <ZoomableImage wallpaper={wallpaper} onSwipeDown={handleClose} priority={index === startIndex} />
                  ) : (
                     <div className="w-full h-full bg-transparent" /> // Placeholder for non-visible slides
                  )}
