@@ -9,11 +9,10 @@ import React from 'react';
 interface WallpaperCardProps {
   wallpaper: Wallpaper;
   query: string;
-  onWallpaperSelect: (wallpaper: Wallpaper) => void;
 }
 
 
-function WallpaperCardComponent({ wallpaper, query, onWallpaperSelect }: WallpaperCardProps) {
+function WallpaperCardComponent({ wallpaper, query }: WallpaperCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const isCurrentlyFavorite = isFavorite(wallpaper.id);
 
@@ -22,15 +21,10 @@ function WallpaperCardComponent({ wallpaper, query, onWallpaperSelect }: Wallpap
     e.stopPropagation(); 
     toggleFavorite({ ...wallpaper, query });
   };
-  
-  const handleCardClick = () => {
-    onWallpaperSelect(wallpaper);
-  }
 
   return (
     <div 
-      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300 cursor-pointer"
-      onClick={handleCardClick}
+      className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300"
     >
         <Image
           src={wallpaper.previewUrl}
