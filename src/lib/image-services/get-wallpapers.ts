@@ -4,7 +4,6 @@ import { search as pexelsSearch } from './pexels';
 import { search as pixabaySearch } from './pixabay';
 import { search as unsplashSearch } from './unsplash';
 import { search as nasaSearch } from './nasa';
-import { search as publicDomainSearch } from './public-domain';
 import type { Wallpaper } from '@/lib/definitions';
 
 type GetWallpapersParams = {
@@ -23,7 +22,6 @@ const services = [
   { name: 'Pixabay', search: pixabaySearch, enabled: !!process.env.PIXABAY_API_KEY },
   { name: 'Unsplash', search: unsplashSearch, enabled: !!process.env.UNSPLASH_ACCESS_KEY },
   { name: 'NASA', search: nasaSearch, enabled: !!process.env.NASA_API_KEY },
-  { name: 'Public Domain', search: publicDomainSearch, enabled: true }, // Scraper is always enabled
 ];
 
 function shuffleArray<T>(array: T[]): T[] {
