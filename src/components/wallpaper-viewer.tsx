@@ -18,6 +18,7 @@ interface WallpaperViewerProps {
   onOpenChange: (open: boolean) => void;
   wallpapers: Wallpaper[];
   startIndex: number;
+  onIndexChange: (index: number) => void;
 }
 
 function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwipeDown: () => void }) {
@@ -72,27 +73,27 @@ function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwi
 }
 
 
-export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: WallpaperViewerProps) {
+export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, onIndexChange }: WallpaperViewerProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     startIndex: startIndex,
     align: 'center',
   });
-  const [currentIndex, setCurrentIndex] = useState(startIndex);
   const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     if (open && emblaApi) {
-        emblaApi.scrollTo(startIndex, true);
-        setCurrentIndex(startIndex);
+        if (emblaApi.selectedScrollSnap() !== startIndex) {
+            emblaApi.scrollTo(startIndex, true);
+        }
     }
   }, [open, startIndex, emblaApi]);
 
   const onSelect = useCallback(() => {
     if (emblaApi) {
-      setCurrentIndex(emblaApi.selectedScrollSnap());
+      onIndexChange(emblaApi.selectedScrollSnap());
     }
-  }, [emblaApi]);
+  }, [emblaApi, onIndexChange]);
 
   useEffect(() => {
     if (emblaApi) {
@@ -105,7 +106,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
 
   if (!open || wallpapers.length === 0) return null;
 
-  const currentWallpaper = wallpapers[currentIndex];
+  const currentWallpaper = wallpapers[startIndex];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -135,7 +136,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
             {wallpapers.map((wallpaper, index) => (
               <div key={`${wallpaper.id}-${index}`} className="embla__slide flex items-center justify-center h-full relative p-4">
                  {/* Only render the ZoomableImage for visible slides to optimize performance */}
-                 {(index >= currentIndex - 1 && index <= currentIndex + 1) ? (
+                 {(index >= startIndex - 1 && index <= startIndex + 1) ? (
                    <ZoomableImage wallpaper={wallpaper} onSwipeDown={handleClose} />
                  ) : (
                     <div className="w-full h-full bg-transparent" /> // Placeholder for non-visible slides

@@ -36,16 +36,22 @@ export async function getWallpapers({ query, page, per_page }: GetWallpapersPara
   
   const perServicePageSize = Math.ceil(per_page / activeServices.length);
   
-  const promises = activeServices.map(service => 
-    service.search({ query, page, per_page: perServicePageSize })
-      .catch(error => {
-        console.error(`Error fetching from ${service.name}:`, error);
-        return [];
-      })
-  );
+  try {
+    const promises = activeServices.map(service => 
+      service.search({ query, page, per_page: perServicePageSize })
+        .catch(error => {
+          console.error(`Error fetching from ${service.name}:`, error);
+          return []; // Return an empty array on error to not fail the whole batch
+        })
+    );
 
-  const results = await Promise.all(promises);
-  
-  const allWallpapers = results.flat();
-  return shuffleArray(allWallpapers);
+    const results = await Promise.all(promises);
+    
+    const allWallpapers = results.flat();
+    return shuffleArray(allWallpapers);
+
+  } catch (error) {
+    console.error("A critical error occurred while fetching wallpapers:", error);
+    return [];
+  }
 }

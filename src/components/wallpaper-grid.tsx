@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { usePathname } from 'next/navigation';
 import type { Wallpaper } from '@/lib/definitions';
 import { WallpaperCard } from './wallpaper-card';
 import { Skeleton } from './ui/skeleton';
@@ -41,8 +40,6 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
   const currentQueryRef = useRef(query);
-  const pathname = usePathname();
-  const lastPathnameRef = useRef(pathname);
 
   // State for the viewer
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -57,30 +54,6 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
       setViewerOpen(true);
     }
   };
-
-
-  // Reshuffle on navigating back to home
-  useEffect(() => {
-    const lastPathname = lastPathnameRef.current;
-    if (pathname === '/' && lastPathname !== '/') {
-      setItems((prevItems) => shuffleArray(prevItems));
-      window.scrollTo(0, 0);
-    }
-    lastPathnameRef.current = pathname;
-  }, [pathname]);
-
-  // Reshuffle when tab becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        setItems((prevItems) => shuffleArray(prevItems));
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
 
   const loadMoreWallpapers = useCallback(async (isNewQuery = false) => {
     if (isLoading || (!hasMore && !isNewQuery)) return;
@@ -194,6 +167,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
             onOpenChange={setViewerOpen}
             wallpapers={wallpapersOnly}
             startIndex={selectedWallpaperIndex}
+            onIndexChange={setSelectedWallpaperIndex}
         />
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {items.map((item, index) => (
