@@ -8,6 +8,7 @@ import { Skeleton } from './ui/skeleton';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import { InGridAdCard } from './in-grid-ad-card';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const AD_FREQUENCY = 4; // Show an ad every 4 items
 
@@ -24,7 +25,13 @@ function addAdsToItems(items: Wallpaper[]): (Wallpaper | { isAd: true })[] {
   return itemsWithAds;
 }
 
-export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, reshuffleTrigger: number }) {
+interface WallpaperGridProps {
+  query: string;
+  reshuffleTrigger: number;
+  viewMode: 'grid' | 'feed';
+}
+
+export function WallpaperGrid({ query, reshuffleTrigger, viewMode }: WallpaperGridProps) {
   const [items, setItems] = useState<(Wallpaper | { isAd: true })[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -83,26 +90,34 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
 
   const handleReshuffle = useCallback(async () => {
     if (isFetchingRef.current) return;
+    
+    window.scrollTo(0, 0);
     isFetchingRef.current = true;
     setIsLoading(true);
-    setItems([]); // Clear existing items
-    setPage(1); // Reset page
-    setHasMore(true); // Reset hasMore
-    window.scrollTo(0, 0);
+
+    // Clear everything to force a fresh start
+    setItems([]); 
+    setPage(1); 
+    setHasMore(true); 
 
     try {
         const { wallpapers: newWallpapers } = await getWallpapers({ query, page: 1, per_page: 12 });
-        setPage(2);
         const processedNewWallpapers = newWallpapers.map(w => ({ ...w, query }));
         const shuffledWithAds = addAdsToItems(processedNewWallpapers);
         setItems(shuffledWithAds);
+        setPage(2);
     } catch(error) {
       console.error("Failed to reshuffle:", error);
+       toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not reshuffle wallpapers.',
+      });
     } finally {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [query]);
+  }, [query, toast]);
 
   useEffect(() => {
     if (reshuffleTrigger > 0) {
@@ -119,12 +134,10 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
         setHasMore(true);
         initialLoadRef.current = false; // Reset initial load flag
         window.scrollTo(0, 0);
-        // Use a timeout to allow state to clear before fetching
         setTimeout(() => loadMoreWallpapers(true), 0);
     }
   }, [query, loadMoreWallpapers]);
 
-   // Effect to load initial data
    useEffect(() => {
     if (!initialLoadRef.current && items.length === 0 && hasMore && query) {
         initialLoadRef.current = true;
@@ -156,17 +169,23 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   
   return (
     <div>
-      <div className="flex flex-col items-center gap-8">
+      <div className={cn(
+        'gap-4',
+        {
+          'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5': viewMode === 'grid',
+          'flex flex-col items-center gap-8': viewMode === 'feed',
+        }
+      )}>
         {items.map((item, index) => (
            ('isAd' in item) 
              ? <InGridAdCard key={`ad-${index}`} />
-             : <WallpaperCard key={`${item.id}-${item.query}-${index}`} wallpaper={item} query={query} />
+             : <WallpaperCard key={`${item.id}-${item.query}-${index}`} wallpaper={item} query={query} viewMode={viewMode} />
         ))}
-        {isLoading && Array.from({ length: 3 }).map((_, index) => (
-            <div key={`skeleton-${index}`} className="w-full max-w-lg">
-                <Skeleton className="w-full aspect-[2/3] rounded-lg" />
-            </div>
-        ))}
+        {isLoading && (
+            viewMode === 'grid' 
+            ? Array.from({ length: 12 }).map((_, index) => <Skeleton key={`skeleton-${index}`} className="w-full aspect-[2/3] rounded-lg" />)
+            : Array.from({ length: 3 }).map((_, index) => <Skeleton key={`skeleton-${index}`} className="w-full max-w-lg aspect-[2/3] rounded-lg" />)
+        )}
       </div>
       <div ref={loaderRef} className="h-20" />
       

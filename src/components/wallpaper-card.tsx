@@ -5,14 +5,16 @@ import { useFavorites } from '@/hooks/use-favorites';
 import { Heart } from 'lucide-react';
 import { DownloadDialog } from './download-dialog';
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface WallpaperCardProps {
   wallpaper: Wallpaper;
   query: string;
+  viewMode: 'grid' | 'feed';
 }
 
 
-function WallpaperCardComponent({ wallpaper, query }: WallpaperCardProps) {
+function WallpaperCardComponent({ wallpaper, query, viewMode }: WallpaperCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const isCurrentlyFavorite = isFavorite(wallpaper.id);
 
@@ -24,7 +26,10 @@ function WallpaperCardComponent({ wallpaper, query }: WallpaperCardProps) {
 
   return (
     <div 
-      className="group relative block aspect-[2/3] w-full max-w-lg overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300"
+      className={cn(
+        "group relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-card border border-transparent hover:border-primary transition-all duration-300",
+        viewMode === 'feed' && "max-w-lg"
+      )}
     >
         <Image
           src={wallpaper.previewUrl}

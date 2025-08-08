@@ -7,13 +7,14 @@ import Header from '@/components/header';
 import { WallpaperGrid } from '@/components/wallpaper-grid';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, MoreHorizontal, Shuffle } from 'lucide-react';
+import { Search, MoreHorizontal, Shuffle, LayoutGrid, List } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { OnboardingDialog } from '@/components/onboarding-dialog';
 import { TermsDialog } from '@/components/terms-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 const ONBOARDING_KEY = 'snapwallpaper_onboarding_complete';
 const TERMS_ACCEPTED_KEY = 'snapwallpaper_terms_accepted';
@@ -25,13 +26,13 @@ export default function Home() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [reshuffleTrigger, setReshuffleTrigger] = useState(0);
+  const [viewMode, setViewMode] = useState<'grid' | 'feed'>('feed');
   
   const [showTerms, setShowTerms] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isAppReady, setIsAppReady] = useState(false);
 
   useEffect(() => {
-    // We need to wait for the client to be ready to check localStorage
     const termsAccepted = localStorage.getItem(TERMS_ACCEPTED_KEY);
     if (!termsAccepted) {
       setShowTerms(true);
@@ -293,14 +294,34 @@ export default function Home() {
                     </div>
                   </PopoverContent>
                 </Popover>
+                <div className="flex-grow"></div>
+                <div className="flex items-center gap-1 rounded-md bg-card/50 p-0.5 border border-primary/50">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant={viewMode === 'grid' ? 'default' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('grid')}>
+                                    <LayoutGrid className="w-4 h-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Grid View</p></TooltipContent>
+                        </Tooltip>
+                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant={viewMode === 'feed' ? 'default' : 'ghost'} size="icon" className="h-8 w-8" onClick={() => setViewMode('feed')}>
+                                    <List className="w-4 h-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Feed View</p></TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
 
               </div>
             </div>
-            <WallpaperGrid query={query} reshuffleTrigger={reshuffleTrigger} />
+            <WallpaperGrid query={query} reshuffleTrigger={reshuffleTrigger} viewMode={viewMode} />
           </div>
         ) : (
           <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-            {/* You can add a spinner here if you like */}
           </div>
         )}
       </main>
