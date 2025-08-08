@@ -85,6 +85,10 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
     setIsLoading(true);
+    setItems([]); // Clear existing items
+    setPage(1); // Reset page
+    setHasMore(true); // Reset hasMore
+    window.scrollTo(0, 0);
 
     try {
         const { wallpapers: newWallpapers } = await getWallpapers({ query, page: 1, per_page: 12 });
