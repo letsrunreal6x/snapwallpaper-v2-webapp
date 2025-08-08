@@ -6,11 +6,22 @@ import { WallpaperCard } from '@/components/wallpaper-card';
 import { useFavorites } from '@/hooks/use-favorites';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { HeartCrack } from 'lucide-react';
+import { HeartCrack, Loader2 } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
 
 export default function FavoritesPage() {
-  const { favorites } = useFavorites();
+  const { favorites, isInitialized } = useFavorites();
+
+  if (!isInitialized) {
+    return (
+        <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
+                <Loader2 className="w-16 h-16 animate-spin text-primary" />
+            </main>
+        </div>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
