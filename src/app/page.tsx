@@ -14,10 +14,6 @@ import { Button } from '@/components/ui/button';
 import { OnboardingDialog } from '@/components/onboarding-dialog';
 import { TermsDialog } from '@/components/terms-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useBackButton } from '@/hooks/use-back-button';
-import { App } from '@capacitor/app';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-
 
 const ONBOARDING_KEY = 'snapwallpaper_onboarding_complete';
 const TERMS_ACCEPTED_KEY = 'snapwallpaper_terms_accepted';
@@ -33,12 +29,6 @@ export default function Home() {
   const [showTerms, setShowTerms] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isAppReady, setIsAppReady] = useState(false);
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
-
-  useBackButton(() => {
-    setShowExitConfirm(true);
-  });
-
 
   useEffect(() => {
     // We need to wait for the client to be ready to check localStorage
@@ -218,20 +208,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>Exit SnapWallpaper?</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Are you sure you want to close the application?
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => App.exitApp()}>Exit</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-       </AlertDialog>
        <TermsDialog open={showTerms} onAccept={handleTermsAccepted} />
        <OnboardingDialog 
         open={showOnboarding} 
