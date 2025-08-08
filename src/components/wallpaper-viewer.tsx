@@ -5,13 +5,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { X, Heart } from 'lucide-react';
+import { X, Heart, Wallpaper as WallpaperIcon, Loader2 } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
 import { useFavorites } from '@/hooks/use-favorites';
 import { DownloadDialog } from './download-dialog';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { usePinch } from 'react-use-pinch-zoom';
+import { Capacitor } from '@capacitor/core';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface WallpaperViewerProps {
   open: boolean;
@@ -82,6 +85,8 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
   });
   const { toggleFavorite, isFavorite } = useFavorites();
   const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [isSettingWallpaper, setIsSettingWallpaper] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (emblaApi) {
@@ -156,6 +161,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
             {currentWallpaper && (
                 <>
                 <div onClick={(e) => e.stopPropagation()}><DownloadDialog wallpaperUrl={currentWallpaper.url} wallpaperId={currentWallpaper.id} /></div>
+                
                 <Button 
                     variant="ghost" 
                     size="icon" 
