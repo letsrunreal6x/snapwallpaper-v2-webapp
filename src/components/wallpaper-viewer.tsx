@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { X, Heart, Loader2 } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
@@ -138,6 +138,16 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
             <span className="sr-only">Close</span>
           </Button>
         </div>
+
+        {/* Accessibility Header */}
+        {currentWallpaper && (
+            <DialogHeader className="sr-only">
+                <DialogTitle>Wallpaper: {currentWallpaper.aiHint || 'Untitled'}</DialogTitle>
+                <DialogDescription>
+                    by {currentWallpaper.author} on {currentWallpaper.source}. Use the buttons to download or add to favorites.
+                </DialogDescription>
+            </DialogHeader>
+        )}
 
         {/* Carousel */}
         <div className="embla flex-grow h-full" ref={emblaRef}>
