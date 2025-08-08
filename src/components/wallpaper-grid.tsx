@@ -8,6 +8,7 @@ import { Skeleton } from './ui/skeleton';
 import { getWallpapers } from '@/lib/image-services/get-wallpapers';
 import { InGridAdCard } from './in-grid-ad-card';
 import { WallpaperViewer } from './wallpaper-viewer';
+import { useToast } from '@/hooks/use-toast';
 
 const AD_FREQUENCY = 4; // Show an ad every 4 items
 
@@ -42,6 +43,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
   const currentQueryRef = useRef(query);
   const isFetchingRef = useRef(false);
   const initialLoadRef = useRef(false);
+  const { toast } = useToast();
 
   // State for the viewer
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -70,8 +72,17 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
     const loadPage = isNewQuery ? 1 : page;
     
     try {
-      const newWallpapers = await getWallpapers({ query, page: loadPage, per_page: 12 });
-      if (newWallpapers.length === 0) {
+      const { wallpapers: newWallpapers, failedServices } = await getWallpapers({ query, page: loadPage, per_page: 12 });
+      
+      if (failedServices.length > 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Image Source Error',
+            description: `Could not fetch from ${failedServices.join(', ')}. Rate limit may be exceeded.`,
+        });
+      }
+
+      if (newWallpapers.length === 0 && !isNewQuery) {
         setHasMore(false);
       } else {
         setItems((prevItems) => {
@@ -85,11 +96,16 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
       }
     } catch (error) {
       console.error("Failed to load wallpapers:", error);
+       toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Something went wrong while fetching wallpapers.',
+      });
     } finally {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [page, hasMore, query]);
+  }, [page, hasMore, query, toast]);
 
   const handleReshuffle = useCallback(async () => {
     if (isFetchingRef.current) return;
@@ -101,7 +117,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
       const countToFetch = Math.ceil(currentWallpapers.length * 0.6);
       
       if (countToFetch > 0) {
-        const newWallpapers = await getWallpapers({ query, page: page + 1, per_page: countToFetch });
+        const { wallpapers: newWallpapers } = await getWallpapers({ query, page: page + 1, per_page: countToFetch });
         setPage(prev => prev + 1); // Increment page to get new images next time
         
         const combined = [...currentWallpapers, ...newWallpapers];
@@ -185,18 +201,14 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
              ? <InGridAdCard key={`ad-${index}`} />
              : <WallpaperCard key={`${item.id}-${index}`} wallpaper={item} query={query} onWallpaperSelect={handleWallpaperSelect} />
         ))}
-      </div>
-      <div ref={loaderRef} className="col-span-full h-20">
-        {isLoading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="aspect-[2/3] w-full">
+        {isLoading && Array.from({ length: 5 }).map((_, index) => (
+            <div key={`skeleton-${index}`} className="aspect-[2/3] w-full">
                 <Skeleton className="w-full h-full rounded-lg" />
-              </div>
-            ))}
-          </div>
-        )}
+            </div>
+        ))}
       </div>
+      <div ref={loaderRef} className="col-span-full h-20" />
+      
       {!isLoading && !hasMore && items.length > 0 && (
         <div className="text-center col-span-full py-8 text-muted-foreground">
             <p>You've reached the end of the galaxy.</p>

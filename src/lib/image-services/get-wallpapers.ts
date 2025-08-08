@@ -12,6 +12,11 @@ type GetWallpapersParams = {
   per_page: number;
 };
 
+type GetWallpapersResult = {
+  wallpapers: Wallpaper[];
+  failedServices: string[];
+}
+
 const services = [
   { name: 'Pexels', search: pexelsSearch, enabled: !!process.env.PEXELS_API_KEY },
   { name: 'Pixabay', search: pixabaySearch, enabled: !!process.env.PIXABAY_API_KEY },
@@ -27,11 +32,13 @@ function shuffleArray<T>(array: T[]): T[] {
   return array;
 }
 
-export async function getWallpapers({ query, page, per_page }: GetWallpapersParams): Promise<Wallpaper[]> {
+export async function getWallpapers({ query, page, per_page }: GetWallpapersParams): Promise<GetWallpapersResult> {
   const activeServices = services.filter(s => s.enabled);
+  const failedServices: string[] = [];
+  
   if (activeServices.length === 0) {
     console.warn("No image services are configured. Please add API keys to your .env file.");
-    return [];
+    return { wallpapers: [], failedServices: [] };
   }
   
   const perServicePageSize = Math.ceil(per_page / activeServices.length);
@@ -41,6 +48,7 @@ export async function getWallpapers({ query, page, per_page }: GetWallpapersPara
       service.search({ query, page, per_page: perServicePageSize })
         .catch(error => {
           console.error(`Error fetching from ${service.name}:`, error);
+          failedServices.push(service.name);
           return []; // Return an empty array on error to not fail the whole batch
         })
     );
@@ -48,10 +56,13 @@ export async function getWallpapers({ query, page, per_page }: GetWallpapersPara
     const results = await Promise.all(promises);
     
     const allWallpapers = results.flat();
-    return shuffleArray(allWallpapers);
+    return {
+        wallpapers: shuffleArray(allWallpapers),
+        failedServices,
+    };
 
   } catch (error) {
     console.error("A critical error occurred while fetching wallpapers:", error);
-    return [];
+    return { wallpapers: [], failedServices: activeServices.map(s => s.name) };
   }
 }
