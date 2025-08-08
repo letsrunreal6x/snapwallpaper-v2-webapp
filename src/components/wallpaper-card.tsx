@@ -6,6 +6,7 @@ import { Heart } from 'lucide-react';
 import { DownloadDialog } from './download-dialog';
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useHaptics } from '@/hooks/use-haptics';
 
 interface WallpaperCardProps {
   wallpaper: Wallpaper;
@@ -18,11 +19,13 @@ interface WallpaperCardProps {
 function WallpaperCardComponent({ wallpaper, query, viewMode, style }: WallpaperCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const isCurrentlyFavorite = isFavorite(wallpaper.id);
+  const { impactLight } = useHaptics();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault(); 
     e.stopPropagation(); 
     toggleFavorite({ ...wallpaper, query });
+    impactLight();
   };
 
   return (
