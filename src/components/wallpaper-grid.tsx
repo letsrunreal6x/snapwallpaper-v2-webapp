@@ -87,9 +87,10 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
       } else {
         setItems((prevItems) => {
             const currentWallpapers = isNewQuery ? [] : prevItems.filter(item => !('isAd' in item)) as Wallpaper[];
-            const updatedWallpapers = [...currentWallpapers, ...newWallpapers];
+            // Assign the current query to each new wallpaper
+            const processedNewWallpapers = newWallpapers.map(w => ({ ...w, query }));
+            const updatedWallpapers = [...currentWallpapers, ...processedNewWallpapers];
             const itemsWithAds = addAdsToItems(updatedWallpapers);
-            // No shuffling on new query to keep relevance. Only shuffle on user action.
             return itemsWithAds;
         });
         setPage(loadPage + 1);
@@ -121,7 +122,9 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
         const { wallpapers: newWallpapers } = await getWallpapers({ query, page: page + 1, per_page: countToFetch });
         setPage(prev => prev + 1); // Increment page to get new images next time
         
-        const combined = [...currentWallpapers, ...newWallpapers];
+        // Assign the current query to each new wallpaper
+        const processedNewWallpapers = newWallpapers.map(w => ({ ...w, query }));
+        const combined = [...currentWallpapers, ...processedNewWallpapers];
         const shuffledWithAds = addAdsToItems(shuffleArray(combined));
 
         setItems(shuffledWithAds);
@@ -200,7 +203,7 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
         {items.map((item, index) => (
            ('isAd' in item) 
              ? <InGridAdCard key={`ad-${index}`} />
-             : <WallpaperCard key={`${item.id}-${index}`} wallpaper={item} query={query} onWallpaperSelect={handleWallpaperSelect} />
+             : <WallpaperCard key={`${item.id}-${item.query}-${index}`} wallpaper={item} query={query} onWallpaperSelect={handleWallpaperSelect} />
         ))}
         {isLoading && Array.from({ length: 5 }).map((_, index) => (
             <div key={`skeleton-${index}`} className="aspect-[2/3] w-full">
