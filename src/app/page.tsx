@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -14,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { OnboardingDialog } from '@/components/onboarding-dialog';
 import { TermsDialog } from '@/components/terms-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 
 const ONBOARDING_KEY = 'snapwallpaper_onboarding_complete';
 const TERMS_ACCEPTED_KEY = 'snapwallpaper_terms_accepted';
