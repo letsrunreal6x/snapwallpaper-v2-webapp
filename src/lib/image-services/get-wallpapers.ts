@@ -5,6 +5,7 @@ import { search as pixabaySearch } from './pixabay';
 import { search as unsplashSearch } from './unsplash';
 import { search as nasaSearch } from './nasa';
 import type { Wallpaper } from '@/lib/definitions';
+import { generateUniqueWallpaperId } from '@/lib/utils';
 
 type GetWallpapersParams = {
   query: string;
@@ -55,9 +56,15 @@ export async function getWallpapers({ query, page, per_page }: GetWallpapersPara
 
     const results = await Promise.all(promises);
     
-    const allWallpapers = results.flat();
+    // Assign a globally unique ID to each wallpaper based on its original ID and the search query
+    const allWallpapersWithUniqueIds = results.flat().map(wallpaper => ({
+      ...wallpaper,
+      id: generateUniqueWallpaperId(wallpaper.id, query),
+      query: query,
+    }));
+
     return {
-        wallpapers: shuffleArray(allWallpapers),
+        wallpapers: shuffleArray(allWallpapersWithUniqueIds),
         failedServices,
     };
 

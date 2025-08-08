@@ -7,23 +7,21 @@ import { useFavorites } from '@/hooks/use-favorites';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
+import type { Wallpaper } from '@/lib/definitions';
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
-
-  // Deduplicate favorites in case of any data inconsistency
-  const uniqueFavorites = Array.from(new Map(favorites.map(item => [item.id, item])).values());
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="font-headline text-3xl text-glow mb-8">Your Favorite Wallpapers</h1>
-        {uniqueFavorites.length > 0 ? (
+        {favorites.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-             {uniqueFavorites.map((wallpaper) => (
+             {favorites.map((wallpaper: Wallpaper) => (
                 <WallpaperCard 
-                    key={`${wallpaper.id}-${wallpaper.query}`}
+                    key={wallpaper.id}
                     wallpaper={wallpaper} 
                     query={wallpaper.query || 'favorites'} 
                 />
