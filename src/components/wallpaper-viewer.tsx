@@ -11,7 +11,7 @@ import { useFavorites } from '@/hooks/use-favorites';
 import { DownloadDialog } from './download-dialog';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import { usePinch } from 'react-use-pinch-zoom';
 
 interface WallpaperViewerProps {
   open: boolean;
@@ -19,6 +19,58 @@ interface WallpaperViewerProps {
   wallpapers: Wallpaper[];
   startIndex: number;
 }
+
+function ZoomableImage({ wallpaper, onSwipeDown }: { wallpaper: Wallpaper, onSwipeDown: () => void }) {
+  const target = React.useRef(null);
+  const {
+    x,
+    y,
+    scale,
+    isPanning,
+    setTransform
+  } = usePinch({
+    minScale: 1,
+    maxScale: 4,
+    onSwipe: (event) => {
+        if (event.direction === 'down' && event.distance > 80) {
+            onSwipeDown();
+        }
+    }
+  });
+
+  const handleDoubleClick = () => {
+    if (scale > 1) {
+        setTransform({ scale: 1, x: 0, y: 0, config: { duration: 200 } });
+    } else {
+        setTransform({ scale: 3, config: { duration: 200 } });
+    }
+  }
+
+
+  return (
+    <div
+      ref={target}
+      className="relative w-full h-full max-w-full max-h-full touch-none"
+      onDoubleClick={handleDoubleClick}
+      style={{ touchAction: 'none' }} // Critical for gesture handling
+    >
+      <Image
+        src={wallpaper.url}
+        alt={wallpaper.aiHint || `Wallpaper by ${wallpaper.author}`}
+        fill
+        className={cn("object-contain transition-transform duration-300 ease-in-out", isPanning ? 'cursor-grabbing' : 'cursor-grab')}
+        style={{
+          transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
+          transformOrigin: 'center center',
+          touchAction: 'none',
+        }}
+        draggable={false}
+        priority={true}
+      />
+    </div>
+  );
+}
+
 
 export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: WallpaperViewerProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -49,15 +101,20 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
     }
   }, [emblaApi, onSelect]);
 
+  const handleClose = useCallback(() => onOpenChange(false), [onOpenChange]);
+
   if (!open || wallpapers.length === 0) return null;
 
   const currentWallpaper = wallpapers[currentIndex];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 m-0 bg-black/80 backdrop-blur-sm border-none w-full h-full max-w-full max-h-screen rounded-none flex flex-col">
+      <DialogContent 
+        className="p-0 m-0 bg-black/80 backdrop-blur-sm border-none w-full h-full max-w-full max-h-screen rounded-none flex flex-col"
+        onInteractOutside={(e) => e.preventDefault()} // Prevents closing on outside click
+      >
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent">
+        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent">
           {currentWallpaper && (
             <div className="flex flex-col">
               <h3 className="font-bold text-white text-lg drop-shadow-lg">{currentWallpaper.aiHint || `Wallpaper`}</h3>
@@ -66,7 +123,7 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
               </a>
             </div>
           )}
-          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-black/30 text-white hover:bg-black/50 hover:text-white" onClick={handleClose}>
             <X className="h-6 w-6" />
             <span className="sr-only">Close</span>
           </Button>
@@ -76,24 +133,20 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex }: 
         <div className="embla flex-grow h-full" ref={emblaRef}>
           <div className="embla__container h-full">
             {wallpapers.map((wallpaper, index) => (
-              <div key={wallpaper.id} className="embla__slide flex items-center justify-center h-full relative p-4">
-                <div className="relative w-full h-full max-w-full max-h-full">
-                   <Image
-                      src={wallpaper.url}
-                      alt={wallpaper.aiHint || `Wallpaper by ${wallpaper.author}`}
-                      fill
-                      className="object-contain"
-                      sizes="100vw"
-                      priority={index === startIndex}
-                   />
-                </div>
+              <div key={`${wallpaper.id}-${index}`} className="embla__slide flex items-center justify-center h-full relative p-4">
+                 {/* Only render the ZoomableImage for visible slides to optimize performance */}
+                 {(index >= currentIndex - 1 && index <= currentIndex + 1) ? (
+                   <ZoomableImage wallpaper={wallpaper} onSwipeDown={handleClose} />
+                 ) : (
+                    <div className="w-full h-full bg-transparent" /> // Placeholder for non-visible slides
+                 )}
               </div>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center items-center p-4 gap-4 bg-gradient-to-t from-black/50 to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center items-center p-4 gap-4 bg-gradient-to-t from-black/50 to-transparent">
             {currentWallpaper && (
                 <>
                 <div onClick={(e) => e.stopPropagation()}><DownloadDialog wallpaperUrl={currentWallpaper.url} wallpaperId={currentWallpaper.id} /></div>
