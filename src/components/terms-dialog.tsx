@@ -28,39 +28,36 @@ Welcome to SnapWallpaper (“App”, “we”, “our”, or “us”). By downl
 By accessing or using the app, you agree to be bound by these Terms. If you do not agree with these Terms, please do not use the app.
 
 2. Use of the App
-The app provides access to wallpaper images sourced from public domain, royalty-free, or Creative Commons (CC0) licensed content available on third-party websites (such as NASA, Pixabay, Pexels, Unsplash, and others). We do not host, own, modify, or sell any of the images shown through the app. You are responsible for reviewing and complying with the licensing terms provided by the original source of each image.
+The app provides access to wallpaper images sourced from public domain, royalty-free, or Creative Commons (CC0) licensed content available on third-party websites (such as NASA, Pixabay, Pexels, Unsplash, and others) via their official, public APIs. We do not host, own, modify, or sell any of the images shown through the app. You are responsible for reviewing and complying with the licensing terms provided by the original source of each image.
 
-3. In-App Browser
-The app may include an embedded browser to access pre-approved, license-cleared image websites. The browser is restricted to safe domains that offer free-to-use content. We do not guarantee the accuracy or legality of content from external websites. Use at your own discretion.
-
-4. Downloading Images
+3. Downloading Images
 Users may download images for personal or commercial use as permitted by the original license. Image downloads are not hosted by our servers and occur directly from the source websites. Before using any image commercially, users must verify the license or attribution requirements from the original provider.
 
-5. Monetization and Ads
+4. Monetization and Ads
 We may display advertisements in the app, including rewarded ads that allow users to unlock download functionality. Viewing ads supports the development and maintenance of the app. By using the app, you agree to our use of advertising services (e.g., Google AdMob, Facebook Audience Network).
 
-6. Intellectual Property
+5. Intellectual Property
 All app content, excluding third-party images, including logos, UI/UX design, and branding elements, are the property of SnapWallpaper and protected by applicable intellectual property laws.
 
-7. User Conduct
+6. User Conduct
 You agree not to:
 - Use the app for illegal purposes
 - Attempt to reverse engineer or tamper with the app
 - Use automated tools to download images at scale
 
-8. Limitation of Liability
+7. Limitation of Liability
 We do not take responsibility for how users use downloaded images. We are not liable for:
 - Any copyright or license violations arising from misuse
 - Inaccuracies or omissions in third-party image information
 - Errors or bugs within third-party content
 
-9. Termination
+8. Termination
 We may suspend or terminate your access to the app if you violate these Terms or misuse the service.
 
-10. Changes to the Terms
+9. Changes to the Terms
 We reserve the right to update or modify these Terms at any time. Continued use of the app after changes constitutes acceptance of the new Terms.
 
-11. Contact Us
+10. Contact Us
 If you have any questions or concerns regarding these Terms, contact us at: support@example.com
 `;
 
