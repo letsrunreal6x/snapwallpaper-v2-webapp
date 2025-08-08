@@ -26,7 +26,7 @@ export default function Home() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [reshuffleTrigger, setReshuffleTrigger] = useState(0);
-  const [viewMode, setViewMode] = useState<'grid' | 'feed'>('feed');
+  const [viewMode, setViewMode] = useState<'grid' | 'feed'>('grid');
   
   const [showTerms, setShowTerms] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
