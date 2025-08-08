@@ -89,12 +89,17 @@ export function WallpaperViewer({ open, onOpenChange, wallpapers, startIndex, on
 
   useEffect(() => {
     if (emblaApi) {
+        // If the viewer is opened and the carousel is not on the right slide, scroll to it.
         if (open && emblaApi.selectedScrollSnap() !== startIndex) {
-            emblaApi.scrollTo(startIndex, true);
+            emblaApi.scrollTo(startIndex, true); // true skips animations
         }
-        setCurrentIndex(emblaApi.selectedScrollSnap());
+        // Always ensure the internal current index state is up to date.
+        const newIndex = emblaApi.selectedScrollSnap();
+        if (newIndex !== currentIndex) {
+           setCurrentIndex(newIndex);
+        }
     }
-  }, [open, startIndex, emblaApi]);
+  }, [open, startIndex, emblaApi, currentIndex]);
 
   const onSelect = useCallback(() => {
     if (emblaApi) {
