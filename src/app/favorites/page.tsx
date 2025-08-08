@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
-import { WallpaperViewer } from '@/components/wallpaper-viewer';
 import { useBackButton } from '@/hooks/use-back-button';
 import { useRouter } from 'next/navigation';
 
@@ -17,8 +16,6 @@ import { useRouter } from 'next/navigation';
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
   const [favoriteWallpapers, setFavoriteWallpapers] = useState<Wallpaper[]>([]);
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedWallpaperIndex, setSelectedWallpaperIndex] = useState(0);
   const router = useRouter();
   
   useBackButton(() => {
@@ -31,28 +28,9 @@ export default function FavoritesPage() {
     setFavoriteWallpapers(uniqueFavorites);
   }, [favorites]);
 
-  const handleWallpaperSelect = (selectedWallpaper: Wallpaper) => {
-    const index = favoriteWallpapers.findIndex(w => w.id === selectedWallpaper.id);
-    if (index !== -1) {
-      setSelectedWallpaperIndex(index);
-      setViewerOpen(true);
-    }
-  };
-  
-  const handleIndexChange = (index: number) => {
-    setSelectedWallpaperIndex(index);
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <WallpaperViewer 
-        open={viewerOpen}
-        onOpenChange={setViewerOpen}
-        wallpapers={favoriteWallpapers}
-        startIndex={selectedWallpaperIndex}
-        onIndexChange={handleIndexChange}
-      />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="font-headline text-3xl text-glow mb-8">Your Favorite Wallpapers</h1>
         {favoriteWallpapers.length > 0 ? (
@@ -62,7 +40,6 @@ export default function FavoritesPage() {
                     key={wallpaper.id}
                     wallpaper={wallpaper} 
                     query={wallpaper.query || 'favorites'} 
-                    onWallpaperSelect={handleWallpaperSelect}
                 />
             ))}
           </div>
