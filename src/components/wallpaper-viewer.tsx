@@ -5,14 +5,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { X, Heart, Wallpaper as WallpaperIcon, Loader2 } from 'lucide-react';
+import { X, Heart, Loader2 } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
 import { useFavorites } from '@/hooks/use-favorites';
 import { DownloadDialog } from './download-dialog';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { usePinch } from 'react-use-pinch-zoom';
-import { Capacitor } from '@capacitor/core';
+import usePinch from 'react-use-pinch-zoom';
 import { useToast } from '@/hooks/use-toast';
 
 
