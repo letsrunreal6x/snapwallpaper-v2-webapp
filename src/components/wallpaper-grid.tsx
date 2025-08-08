@@ -89,7 +89,8 @@ export function WallpaperGrid({ query, reshuffleTrigger }: { query: string, resh
             const currentWallpapers = isNewQuery ? [] : prevItems.filter(item => !('isAd' in item)) as Wallpaper[];
             const updatedWallpapers = [...currentWallpapers, ...newWallpapers];
             const itemsWithAds = addAdsToItems(updatedWallpapers);
-            return isNewQuery ? shuffleArray(itemsWithAds) : itemsWithAds;
+            // No shuffling on new query to keep relevance. Only shuffle on user action.
+            return itemsWithAds;
         });
         setPage(loadPage + 1);
         if(isNewQuery) setHasMore(true);
