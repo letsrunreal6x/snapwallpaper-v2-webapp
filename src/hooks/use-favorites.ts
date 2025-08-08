@@ -3,70 +3,53 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Wallpaper } from '@/lib/definitions';
-import { Capacitor } from '@capacitor/core';
-
 
 const FAVORITES_KEY = 'snapwallpaper_favorites';
 
+// Helper to get favorites from localStorage safely
+const getStoredFavorites = (): Wallpaper[] => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+  try {
+    const storedFavorites = window.localStorage.getItem(FAVORITES_KEY);
+    return storedFavorites ? JSON.parse(storedFavorites) : [];
+  } catch (error) {
+    console.error("Could not read favorites from localStorage", error);
+    return [];
+  }
+};
+
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<Wallpaper[]>([]);
-  const [isReady, setIsReady] = useState(false);
+  // Initialize state directly from localStorage
+  const [favorites, setFavorites] = useState<Wallpaper[]>(getStoredFavorites);
 
+  // Effect to update localStorage whenever favorites change
   useEffect(() => {
-    // Only run on client-side
-    setIsReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (isReady && Capacitor.isBrowser) {
-        try {
-            const storedFavorites = window.localStorage.getItem(FAVORITES_KEY);
-            if (storedFavorites) {
-                setFavorites(JSON.parse(storedFavorites));
-            }
-        } catch (error) {
-            console.error("Could not read favorites from localStorage", error);
-            setFavorites([]);
-        }
+    try {
+      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    } catch (error) {
+      console.error("Could not save favorites to localStorage", error);
     }
-  }, [isReady]);
+  }, [favorites]);
 
-  const saveFavorites = (newFavorites: Wallpaper[]) => {
-    if (Capacitor.isBrowser) {
-        try {
-            setFavorites(newFavorites);
-            window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites));
-        } catch (error) {
-            console.error("Could not save favorites to localStorage", error);
-        }
-    } else {
-        // On native, you might use Capacitor's Storage API
-        setFavorites(newFavorites);
-    }
-  };
-
-  const addFavorite = useCallback((wallpaper: Wallpaper) => {
-    setFavorites(f => [...f, wallpaper]);
-  }, []);
-
-  const removeFavorite = useCallback((wallpaperId: string) => {
-     setFavorites(f => f.filter((fav) => fav.id !== wallpaperId));
-  }, []);
-
-  const isFavorite = useCallback((wallpaperId: string) => {
+  const isFavorite = useCallback((wallpaperId: string): boolean => {
+    // Check if a wallpaper with the given ID exists in the favorites list
     return favorites.some((fav) => fav.id === wallpaperId);
   }, [favorites]);
 
   const toggleFavorite = useCallback((wallpaper: Wallpaper) => {
-    const currentlyFavorite = isFavorite(wallpaper.id);
-    let newFavorites;
-    if (currentlyFavorite) {
-      newFavorites = favorites.filter((fav) => fav.id !== wallpaper.id);
-    } else {
-      newFavorites = [...favorites, wallpaper];
-    }
-    saveFavorites(newFavorites);
-  }, [isFavorite, favorites]); // `addFavorite` and `removeFavorite` are not stable, so we inline logic
-
+    setFavorites(prevFavorites => {
+      const isCurrentlyFavorite = prevFavorites.some(fav => fav.id === wallpaper.id);
+      if (isCurrentlyFavorite) {
+        // Remove the wallpaper if it's already a favorite
+        return prevFavorites.filter(fav => fav.id !== wallpaper.id);
+      } else {
+        // Add the wallpaper if it's not a favorite
+        return [...prevFavorites, wallpaper];
+      }
+    });
+  }, []);
+  
   return { favorites, toggleFavorite, isFavorite };
 };
