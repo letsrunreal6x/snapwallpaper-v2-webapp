@@ -4,9 +4,9 @@ import type { Wallpaper } from '@/lib/definitions';
 import { WallpaperCard } from './wallpaper-card';
 import { InGridAdCard } from './in-grid-ad-card';
 import { Skeleton } from './ui/skeleton';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSprings, animated } from '@react-spring/web';
-import { useDrag } from '@use-gesture/react';
+import { useGesture } from '@use-gesture/react';
 
 interface WallpaperFeedProps {
     items: (Wallpaper | { isAd: true })[];
@@ -16,12 +16,15 @@ interface WallpaperFeedProps {
     hasMore: boolean;
 }
 
+const transitionTime = 250; // ms for wheel debounce
+
 export function WallpaperFeed({ items, isLoading, query, loadNextPage, hasMore }: WallpaperFeedProps) {
     const [index, setIndex] = useState(0);
+    const wheeling = useRef(false);
 
     // When the user gets close to the end of the feed, load more wallpapers
     useEffect(() => {
-        if (items.length > 0 && index >= items.length - 2 && hasMore && !isLoading) {
+        if (items.length > 0 && index >= items.length - 5 && hasMore && !isLoading) {
             loadNextPage();
         }
     }, [index, items.length, hasMore, isLoading, loadNextPage]);
@@ -37,18 +40,39 @@ export function WallpaperFeed({ items, isLoading, query, loadNextPage, hasMore }
         display: 'block',
     }));
 
-    const bind = useDrag(({ active, movement: [, my], direction: [, yDir], distance, cancel }) => {
-        if (active && distance > window.innerHeight / 4) {
-            const newIndex = Math.max(0, Math.min(items.length - 1, index + (yDir > 0 ? -1 : 1)));
-            setIndex(newIndex);
-            cancel();
+    const changeIndex = (newIndex: number) => {
+        setIndex(Math.max(0, Math.min(items.length - 1, newIndex)));
+    };
+
+    const bind = useGesture({
+        onDrag: ({ active, movement: [, my], direction: [, yDir], distance, cancel }) => {
+            if (active && distance > window.innerHeight / 4) {
+                changeIndex(index + (yDir > 0 ? -1 : 1));
+                cancel();
+            }
+            api.start(i => {
+                if (i < index - 1 || i > index + 1) return { display: 'none' };
+                const y = (i - index) * window.innerHeight + (active ? my : 0);
+                const scale = active ? 1 - distance / window.innerHeight / 2 : 1;
+                return { y, scale, display: 'block' };
+            });
+        },
+        onWheel: ({ event, direction: [, yDir] }) => {
+            event.preventDefault();
+            if (wheeling.current) return;
+            wheeling.current = true;
+            changeIndex(index + yDir);
+            setTimeout(() => (wheeling.current = false), transitionTime + 50);
         }
-        api.start(i => {
-            if (i < index - 1 || i > index + 1) return { display: 'none' };
-            const y = (i - index) * window.innerHeight + (active ? my : 0);
-            const scale = active ? 1 - distance / window.innerHeight / 2 : 1;
-            return { y, scale, display: 'block' };
-        });
+    }, {
+        drag: {
+            axis: 'y',
+            filterTaps: true,
+            pointer: { touch: true }
+        },
+        wheel: {
+            axis: 'y',
+        }
     });
 
     useEffect(() => {
