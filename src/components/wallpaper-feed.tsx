@@ -19,13 +19,14 @@ interface WallpaperFeedProps {
 export function WallpaperFeed({ items, isLoading, query, loadNextPage, hasMore }: WallpaperFeedProps) {
     const [index, setIndex] = useState(0);
 
+    // When the user gets close to the end of the feed, load more wallpapers
     useEffect(() => {
         if (items.length > 0 && index >= items.length - 2 && hasMore && !isLoading) {
             loadNextPage();
         }
     }, [index, items.length, hasMore, isLoading, loadNextPage]);
     
-    // Reset index when query changes
+    // Reset index when the search query changes
     useEffect(() => {
       setIndex(0);
     }, [query]);
@@ -56,7 +57,7 @@ export function WallpaperFeed({ items, isLoading, query, loadNextPage, hasMore }
             const y = (i - index) * window.innerHeight;
             return { y, scale: 1, display: 'block' };
         });
-    }, [index, api]);
+    }, [index, api, items.length]);
     
     if (isLoading && items.length === 0) {
         return (
