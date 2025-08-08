@@ -10,12 +10,20 @@ import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
 import { WallpaperViewer } from '@/components/wallpaper-viewer';
+import { useBackButton } from '@/hooks/use-back-button';
+import { useRouter } from 'next/navigation';
+
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
   const [favoriteWallpapers, setFavoriteWallpapers] = useState<Wallpaper[]>([]);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedWallpaperIndex, setSelectedWallpaperIndex] = useState(0);
+  const router = useRouter();
+  
+  useBackButton(() => {
+    router.push('/');
+  });
 
   useEffect(() => {
     // Deduplicate favorites in case of any data inconsistency
