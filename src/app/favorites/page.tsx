@@ -9,18 +9,11 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { HeartCrack } from 'lucide-react';
 import type { Wallpaper } from '@/lib/definitions';
-import { useBackButton } from '@/hooks/use-back-button';
-import { useRouter } from 'next/navigation';
 
 
 export default function FavoritesPage() {
   const { favorites } = useFavorites();
   const [favoriteWallpapers, setFavoriteWallpapers] = useState<Wallpaper[]>([]);
-  const router = useRouter();
-  
-  useBackButton(() => {
-    router.push('/');
-  });
 
   useEffect(() => {
     // Deduplicate favorites in case of any data inconsistency
